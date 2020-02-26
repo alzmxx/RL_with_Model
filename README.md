@@ -1,4 +1,4 @@
-# RL_with_Model
+# Combine RL with Model-based Control
 
 This is the code with the paper: 
  'Combining Deep Reinforcement Learning and Safety Based Control for Autonomous Driving.'

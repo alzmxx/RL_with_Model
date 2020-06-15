@@ -24,7 +24,7 @@ class OUNoise:
 
     def noise(self):
         x = self.state
-        dx = tf.add(tf.multiply(self.theta, tf.sub(self.mu, x)), tf.multiply(self.sigma, tf.random_normal([tf.size(x)])))
+        dx = tf.add(tf.multiply(self.theta, tf.math.subtract(self.mu, x)), tf.multiply(self.sigma, tf.random.normal([tf.size(x)])))
         self.state = tf.add(x, dx)
         return self.state
 '''

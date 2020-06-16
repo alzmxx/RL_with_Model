@@ -7,8 +7,8 @@ def fanin_init(shape,fanin=None):
   return tf.random_uniform(shape, minval=-v, maxval=v)
 
 
-l1 = 400 # dm 400
-l2 = 300 # dm 300
+l1 = 40 # dm 400
+l2 = 30 # dm 300
 
 
 def theta_p(state_dim,action_dim):
@@ -23,10 +23,10 @@ def theta_p(state_dim,action_dim):
 def policy_network(state,theta,name='policy'):
   with tf.variable_op_scope([state],name,name):
     h0 = tf.identity(state,name='h0-state')
-    h1 = tf.nn.relu( tf.matmul(h0,theta[0]) + theta[1],name='h1')
-    h2 = tf.nn.relu( tf.matmul(h1,theta[2]) + theta[3],name='h2')
+    h1 = tf.nn.tanh( tf.matmul(h0,theta[0]) + theta[1],name='h1')
+    h2 = tf.nn.tanh( tf.matmul(h1,theta[2]) + theta[3],name='h2')
     h3 = tf.identity(tf.matmul(h2,theta[4]) + theta[5],name='h3')
-    action = tf.nn.tanh(h3,name='h4-action')
+    action = tf.nn.sigmoid(h3,name='h4-action')
     return action
 
 
@@ -43,9 +43,9 @@ def q_network(state,action,theta, name="q_network"):
   with tf.variable_op_scope([state,action],name,name):
     h0 = tf.identity(state,name='h0-state')
     h0a = tf.identity(action,name='h0-act')
-    h1  = tf.nn.relu( tf.matmul(h0,theta[0]) + theta[1],name='h1')
-    h1a = tf.concat(1,[h1,action])
-    h2  = tf.nn.relu( tf.matmul(h1a,theta[2]) + theta[3],name='h2')
+    h1  = tf.nn.tanh( tf.matmul(h0,theta[0]) + theta[1],name='h1')
+    h1a = tf.concat([h1,action],1)
+    h2  = tf.nn.tanh( tf.matmul(h1a,theta[2]) + theta[3],name='h2')
     qs  = tf.matmul(h2,theta[4]) + theta[5]
     q = tf.squeeze(qs,[1],name='h3-q')
     

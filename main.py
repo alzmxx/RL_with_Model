@@ -3,11 +3,11 @@ from ddpg import *
 import gc
 #gc.enable()
 
-TEST = 100
+TEST = 3
 
 vision = False
-episode_count = 100000
-max_steps = 15000
+episode_count = 1000
+max_steps = 100
 reward = 0
 done = False
 step = 0
@@ -19,7 +19,7 @@ from keras.optimizers import Adam
 from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
-import pyENV
+import pyENV_j5 as pyENV
 from datetime import datetime
 import keras
 import sumolib
@@ -47,11 +47,11 @@ sumoBinary = checkBinary('sumo')
 # begin the simulation
 
 # generate the final SUMO file, include net file and vehicle file
-traci.start([sumoBinary, '-c', os.path.join('data', 'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/Nguyen.sumocfg')])
+traci.start([sumoBinary, '-c', os.path.join('Nguyen-Dupuis/Nguyen.sumocfg')])
 
 simpla.load("data/simpla.cfg.xml")
 mgr=simpla._mgr
-env=pyENV.network("C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/newND.net.xml","sumo","C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/Nguyen.sumocfg")
+env=pyENV.network("Nguyen-Dupuis/newND.net.xml","sumo","Nguyen-Dupuis/Nguyen.sumocfg")
 
 agent = DDPG(env)
 print("SUMO Experiment Start.")
@@ -64,15 +64,21 @@ for episode in range(episode_count):
     # else:
     #     state = env.reset()
     state=env.reset()
+    
     for step in range(max_steps):
+        # print('step: ', step)
+        print('state: ', state)
         action = agent.noise_action(state)
+        print("actions:",action)
         next_state,reward,done,_ = env.step(action)
+        print("reward:",reward)
         agent.perceive(state,action,reward,next_state,done)
         state = next_state
         if done:
             break
     
-    if episode % 1000 == 0 and episode > 100:
+
+    if episode % 10 == 0 and episode > 0:
         total_reward = 0
         for i in range(TEST):
             # if np.mod(i, 10) == 0:
@@ -91,5 +97,5 @@ for episode in range(episode_count):
         ave_reward = total_reward/TEST
         print("episode: ",episode, "Evaluation Average Reward: ", ave_reward)
 
-env.end()  # This is for shutting down TORCS
+#env.end()  # This is for shutting down TORCS
 print("Finish.      lalallalalllllllalllalala")

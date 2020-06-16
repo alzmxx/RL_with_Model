@@ -11,16 +11,16 @@ import random
 from collections import deque
 from ou_noise import OUNoise
 import networks
-
+from datetime import datetime
 # Hyper Parameters:
-REPLAY_BUFFER_SIZE = 100000 #500000
-REPLAY_START_SIZE = 100000
-BATCH_SIZE = 64  #32
+REPLAY_BUFFER_SIZE = 2000 #500000
+REPLAY_START_SIZE = 2000
+BATCH_SIZE = 32  #32
 GAMMA = 0.99
-LAYER1_SIZE = 400
-LAYER2_SIZE = 300
-Q_LEARNING_RATE = 0.001 #0.001
-P_LEARNING_RATE = 0.0001 #0.0001
+LAYER1_SIZE = 40
+LAYER2_SIZE = 30
+Q_LEARNING_RATE = 0.0001 #0.001
+P_LEARNING_RATE = 0.00001 #0.0001
 TAU = 0.001
 L2_Q = 0.01
 L2_POLICY = 0.0
@@ -45,13 +45,13 @@ class DDPG:
 		self.saver = tf.train.Saver()
 		checkpoint = tf.train.get_checkpoint_state("saved_networks")
 		if checkpoint and checkpoint.model_checkpoint_path:
-				self.saver.restore(self.sess, checkpoint.model_checkpoint_path)
-				print("Successfully loaded:", checkpoint.model_checkpoint_path)
+			self.saver.restore(self.sess, checkpoint.model_checkpoint_path)
+			print("Successfully loaded:", checkpoint.model_checkpoint_path)
 		else:
-				print("Could not find old network weights")
+			print("Could not find old network weights")
 
 		global summary_writer
-		summary_writer = tf.train.SummaryWriter('~/logs',graph=self.sess.graph)
+		summary_writer = tf.summary.FileWriter('~/logs'+datetime.now().strftime("%Y%m%d-%H%M%S"),graph=self.sess.graph)
 	
 	def create_networks_and_training_method(self,state_dim,action_dim):
 
@@ -74,7 +74,7 @@ class DDPG:
 		weight_decay_p = tf.add_n([L2_POLICY * tf.nn.l2_loss(var) for var in theta_p])  
 		loss_p = -mean_q + weight_decay_p
 
-		optim_p = tf.train.AdamOptimizer(P_LEARNING_RATE)
+		optim_p = tf.train.GradientDescentOptimizer(P_LEARNING_RATE)
 		grads_and_vars_p = optim_p.compute_gradients(loss_p, var_list=theta_p)
 		optimize_p = optim_p.apply_gradients(grads_and_vars_p)
 		with tf.control_dependencies([optimize_p]):
@@ -89,7 +89,7 @@ class DDPG:
 		q_train = networks.q_network(self.state,self.action_train,theta_q)
 		next_action = networks.policy_network(self.next_state,theta=target_theta_p)
 		next_q = networks.q_network(self.next_state,next_action,theta=target_theta_q)
-		q_target = tf.stop_gradient(tf.select(self.done,self.reward,self.reward + GAMMA * next_q))
+		q_target = tf.stop_gradient(tf.where(self.done,self.reward,self.reward + GAMMA * next_q))
 
 		# q loss
 		q_error = tf.reduce_mean(tf.square(q_target - q_train))
@@ -102,11 +102,11 @@ class DDPG:
 		with tf.control_dependencies([optimize_q]):
 			self.train_q = tf.group(target_update_q)
 
-		tf.scalar_summary("loss_q",loss_q)
-		tf.scalar_summary("loss_p",loss_p)
-		tf.scalar_summary("q_mean",mean_q)
+		tf.summary.scalar("loss_q",loss_q)
+		tf.summary.scalar("loss_p",loss_p)
+		tf.summary.scalar("q_mean",mean_q)
 		global merged_summary_op
-		merged_summary_op = tf.merge_all_summaries()
+		merged_summary_op = tf.summary.merge_all()
 
 	def train(self):
 		#print "train step",self.time_step

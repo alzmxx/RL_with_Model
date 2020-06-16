@@ -10,10 +10,18 @@ def generate_routefile():
 	CAV_ratio = 0.2
 
 	num_veh = 100
-
+# ,file=routes)
+# 	for i in range(1,20):
+# 		if i not in [13,19,16]:
+# 			print("<route id="+"'link"+str(i)+"toend1'"+" edges="+"'link"+str(i)+" end1'"+"/>",file=routes)
+# 	for i in range(1,20):
+# 		if i not in [14,9,11,15]:
+# 			print("<route id="+"'link"+str(i)+"toend2'"+" edges="+"'link"+str(i)+" end2'"+"/>",file=routes)
+# 	print(
 	routes=open("N.rou.xml", "w")
 	print("""<?xml version="1.0" encoding="UTF-8"?>
 
+	
 <routes>
 
 	<route id="route0" edges="start1 end1" />

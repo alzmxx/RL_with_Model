@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 06/15/20 10:51:18 by Eclipse SUMO Version 1.5.0
+<!-- generated on Tue Jun 16 16:41:37 2020 by Eclipse SUMO Version 1.4.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/newND.net.xml"/>
-        <route-files value="C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/N.rou.xml"/>
-        <additional-files value="C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/abc.add.xml"/>
+        <net-file value="Nguyen-Dupuis/newND.net.xml"/>
+        <route-files value="Nguyen-Dupuis/N.rou.xml"/>
+        <additional-files value="Nguyen-Dupuis/abc.add.xml"/>
     </input>
 
     <processing>
@@ -18,11 +18,7 @@
     </report>
 
     <traci_server>
-        <remote-port value="51350"/>
+        <remote-port value="35093"/>
     </traci_server>
 
 </configuration>
--->
-
-<detector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/det_e1_file.xsd">
-</detector>

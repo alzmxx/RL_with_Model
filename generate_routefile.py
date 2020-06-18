@@ -109,7 +109,6 @@ def generate_routefile():
 
 	print("</routes>", file=routes)
 	routes.close()
-generate_routefile()
 
 
 	# write the file of the detecors

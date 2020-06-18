@@ -45,6 +45,7 @@ class DDPG:
 		self.saver = tf.train.Saver()
 		checkpoint = tf.train.get_checkpoint_state("saved_networks")
 		if checkpoint and checkpoint.model_checkpoint_path:
+			print("checkpoint.model_checkpoint_path:",checkpoint.model_checkpoint_path)
 			self.saver.restore(self.sess, checkpoint.model_checkpoint_path)
 			print("Successfully loaded:", checkpoint.model_checkpoint_path)
 		else:
@@ -137,6 +138,7 @@ class DDPG:
 		action = self.sess.run(self.action_exploration,feed_dict={
 			self.state:[state]
 			})[0]
+		
 		return np.clip(action,self.environment.action_space.low,self.environment.action_space.high)
 
 	def action(self,state):

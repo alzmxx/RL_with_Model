@@ -69,7 +69,7 @@ for episode in range(episode_count):
         # print('step: ', step)
         print('state: ', state)
         action = agent.noise_action(state)
-        print("actions:",action)
+        # print("actions:",action)
         next_state,reward,done,_ = env.step(action)
         print("reward:",reward)
         agent.perceive(state,action,reward,next_state,done)

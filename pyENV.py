@@ -134,81 +134,7 @@ class junction:
                 set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
 
 
-    # def coordinate(self,threshold=30,C=-20,link=None):
-    #     self.temp_vehicle.clear()
-    #     self.onLaneVehicles.clear()
-    #     index=0
-    #     for lane in self.incLanes:
-    #         if (not "end" in lane) and (not "start" in lane):
-    #             for vehicle in traci.inductionloop.getLastStepVehicleIDs("e1Detector"+lane):
-    #                 self.temp_vehicle.append(vehicle)
-    #             for vehicle in traci.edge.getLastStepVehicleIDs(lane):
-    #                 self.onLaneVehicles.append(vehicle)
-    #     self.temp_time = traci.simulation.getTime()
-    #     if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
-    #         # print(self.temp_vehicle,"case0")
-    #         self.lead_time=traci.simulation.getTime()
-    #         self.decelerate(threshold,C)
-    #         self.lead_vehicle=self.temp_vehicle[-1]
-    #         return
-
-       
-    #     # calculate the predicted headway sk
-        
-    #     time_interval = self.temp_time - self.lead_time
-    #     self.sk = self.ini_sk + time_interval
-    #     # if self.ID=="junction5":
-    #     #     print("leadvehicle:",self.lead_vehicle,"tempvehicles:",self.temp_vehicle,self.sk,self.ini_sk,self.temp_time,self.lead_time)
-    #     if not traci.vehicle.getSpeed(self.lead_vehicle) or not (self.temp_vehicle[0]):
-    #         return 
-    #     if self.sk < threshold:
-            
-    #         lead_vehicle_speed = traci.vehicle.getSpeed(self.lead_vehicle)
-    #         lead_vehicle_speed_arrive_time = self.lead_time + d1 / lead_vehicle_speed
-            
-    #         follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
-    #         follower_vehicle_assumed_arrive_time = self.temp_time + d1 / follower_vehicle_speed
-
-    #         time_deduction = follower_vehicle_assumed_arrive_time - lead_vehicle_speed_arrive_time - collision_time_delay
-    #         set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
-
-    #         # limit the acceleration speed
-    #         for vehicle in self.temp_vehicle:
-    #             if set_follower_speed <= 40.0:
-    #                 self.ini_sk = self.sk
-                
-    #                 traci.vehicle.setSpeedMode(vehicle, 0)
-    #                 traci.vehicle.setSpeed(vehicle, set_follower_speed)
-    #                 # print("accelerate",vehicle,"speed to",set_follower_speed,"sk:",self.sk)
-    #                 set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
-    #                 index+=1
-    #                 # print(self.temp_time,vehicle,"case1")
-    #             else:
-    #                 break
-            
-    #         self.ini_sk = C
-    #         # not catch up and decelerate the speed
-    #         time_deduction = C
-
-    #         follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
-    #         set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
-    #         for i in range(index,len(self.temp_vehicle)):
-    #             self.temp_vehicle[i]
-    #             if set_follower_speed <= 40.0:
-    #                 traci.vehicle.setSpeedMode(self.temp_vehicle[i], 0)
-    #                 traci.vehicle.setSpeed(self.temp_vehicle[i], set_follower_speed)
-    #                 # print("decelerate",self.temp_vehicle[i],"speed to",set_follower_speed)
-    #                 set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
-    #                 # print(self.temp_time,self.temp_vehicle[i],"case2")
-                
-    #     else:
-    #         # print(self.temp_time,"case3")
-    #         self.decelerate(threshold,C)
-    #     self.lead_vehicle=self.temp_vehicle[-1]
-    #     self.lead_time=self.temp_time
-    #     if link and self.lead_vehicle:
-    #         traci.vehicle.setVia(self.lead_vehicle,[link])
-    def coordinate(self,speed):
+    def coordinate(self,threshold=30,C=-20,link=None):
         self.temp_vehicle.clear()
         self.onLaneVehicles.clear()
         index=0
@@ -216,16 +142,90 @@ class junction:
             if (not "end" in lane) and (not "start" in lane):
                 for vehicle in traci.inductionloop.getLastStepVehicleIDs("e1Detector"+lane):
                     self.temp_vehicle.append(vehicle)
-        for vehicle in self.temp_vehicle:
-            traci.vehicle.setSpeedMode(vehicle, 0)
-            traci.vehicle.setSpeed(vehicle, speed)
+                for vehicle in traci.edge.getLastStepVehicleIDs(lane):
+                    self.onLaneVehicles.append(vehicle)
+        self.temp_time = traci.simulation.getTime()
+        if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
+            # print(self.temp_vehicle,"case0")
+            self.lead_time=traci.simulation.getTime()
+            self.decelerate(threshold,C)
+            self.lead_vehicle=self.temp_vehicle[-1]
+            return
+
+       
+        # calculate the predicted headway sk
+        
+        time_interval = self.temp_time - self.lead_time
+        self.sk = self.ini_sk + time_interval
+        # if self.ID=="junction5":
+        #     print("leadvehicle:",self.lead_vehicle,"tempvehicles:",self.temp_vehicle,self.sk,self.ini_sk,self.temp_time,self.lead_time)
+        if not traci.vehicle.getSpeed(self.lead_vehicle) or not (self.temp_vehicle[0]):
+            return 
+        if self.sk < threshold:
+            
+            lead_vehicle_speed = traci.vehicle.getSpeed(self.lead_vehicle)
+            lead_vehicle_speed_arrive_time = self.lead_time + d1 / lead_vehicle_speed
+            
+            follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
+            follower_vehicle_assumed_arrive_time = self.temp_time + d1 / follower_vehicle_speed
+
+            time_deduction = follower_vehicle_assumed_arrive_time - lead_vehicle_speed_arrive_time - collision_time_delay
+            set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
+
+            # limit the acceleration speed
+            for vehicle in self.temp_vehicle:
+                if set_follower_speed <= 40.0:
+                    self.ini_sk = self.sk
+                
+                    traci.vehicle.setSpeedMode(vehicle, 0)
+                    traci.vehicle.setSpeed(vehicle, set_follower_speed)
+                    # print("accelerate",vehicle,"speed to",set_follower_speed,"sk:",self.sk)
+                    set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
+                    index+=1
+                    # print(self.temp_time,vehicle,"case1")
+                else:
+                    break
+            
+            self.ini_sk = C
+            # not catch up and decelerate the speed
+            time_deduction = C
+
+            follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
+            set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
+            for i in range(index,len(self.temp_vehicle)):
+                self.temp_vehicle[i]
+                if set_follower_speed <= 40.0:
+                    traci.vehicle.setSpeedMode(self.temp_vehicle[i], 0)
+                    traci.vehicle.setSpeed(self.temp_vehicle[i], set_follower_speed)
+                    # print("decelerate",self.temp_vehicle[i],"speed to",set_follower_speed)
+                    set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
+                    # print(self.temp_time,self.temp_vehicle[i],"case2")
+                
+        else:
+            # print(self.temp_time,"case3")
+            self.decelerate(threshold,C)
+        self.lead_vehicle=self.temp_vehicle[-1]
+        self.lead_time=self.temp_time
+        if link and self.lead_vehicle:
+            traci.vehicle.setVia(self.lead_vehicle,[link])
+    # def coordinate(self,speed):
+    #     self.temp_vehicle.clear()
+    #     self.onLaneVehicles.clear()
+    #     index=0
+    #     for lane in self.incLanes:
+    #         if (not "end" in lane) and (not "start" in lane):
+    #             for vehicle in traci.inductionloop.getLastStepVehicleIDs("e1Detector"+lane):
+    #                 self.temp_vehicle.append(vehicle)
+    #     for vehicle in self.temp_vehicle:
+    #         traci.vehicle.setSpeedMode(vehicle, 0)
+    #         traci.vehicle.setSpeed(vehicle, speed)
 
 
 import numpy as np
 from gym import spaces
 class network:
     
-    def __init__(self,path,ui,sumocfgPath,steptime=60):
+    def __init__(self,path,ui,sumocfgPath,steptime=500):
         net=sumolib.net.readNet(path)
         self.junctions=[]
         self.lanes={}
@@ -240,8 +240,8 @@ class network:
         # lowVals=np.array([0,0]*(len(self.junctions)))
         # highVals=np.array([1,1]*(len(self.junctions)))
         # self.action_space=spaces.Box(low=lowVals, high=highVals)
-        lowVals=np.array([0]*(len(self.junctions)))
-        highVals=np.array([1]*(len(self.junctions)))
+        lowVals=np.array([0,0]*(len(self.junctions)))
+        highVals=np.array([1,1]*(len(self.junctions)))
         self.action_space=spaces.Box(low=lowVals, high=highVals)
         self.steptime=steptime
         self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-8)),np.array([1]*(len(self.lanes)-8)))
@@ -258,15 +258,15 @@ class network:
 
         observation=self.get_observation()
         # reward=(self.baseline-totalcost)/totalcost
-        if traci.simulation.getTime()>8700:
+        if traci.simulation.getTime()>10800:
             done=True
         else:
             done=False
-        # print("params:")
-        # print(params)
-        # print("observations:")
-        # print(observation)
-        return observation, (70-totalcost)/35, done, {}
+        print("params:")
+        print(params)
+        print("observations:")
+        print(observation)
+        return observation, (500-totalcost)/300, done, {}
         # return observation, totalcost, done, {}
     
     def render(self, mode='human', close=False):
@@ -329,26 +329,6 @@ class network:
     #     print("baseline for learning:",totalcost/12)
     #     return totalcost/12
     
-    # def action(self,params):
-    #     traci.simulationStep()
-    #     for vehicle in traci.vehicle.getIDList():
-    #         vehicle_item_type = traci.vehicle.getTypeID(vehicle)
-    #         if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
-    #             traci.vehicle.setColor(vehicle,(0,255,0))
-    #         else:
-    #             traci.vehicle.setColor(vehicle,(255,0,100))
-    #     # threshold=params[0]*50
-    #     # C=params[1]*50
-    #     for i in range(len(self.junctions)): 
-    #         threshold=params[2*i]*50
-    #         C=params[2*i+1]*50*(-1)
-    #         # print(self.junctions[i].ID,":",threshold,C)
-    #         self.junctions[i].restrictDrivingMode()
-    #         toUpdate=self.junctions[i].detectArrival()
-    #         if toUpdate:
-    #             self.junctions[i].coordinate(threshold,C)
-    #             for lane in toUpdate:
-    #                 self.lanes[lane].updateFlow()
     def action(self,params):
         traci.simulationStep()
         for vehicle in traci.vehicle.getIDList():
@@ -360,14 +340,34 @@ class network:
         # threshold=params[0]*50
         # C=params[1]*50
         for i in range(len(self.junctions)): 
-            speed=10+params[i]*30
+            threshold=params[2*i]*50
+            C=params[2*i+1]*50*(-1)
             # print(self.junctions[i].ID,":",threshold,C)
             self.junctions[i].restrictDrivingMode()
             toUpdate=self.junctions[i].detectArrival()
             if toUpdate:
-                self.junctions[i].coordinate(speed)
+                self.junctions[i].coordinate(threshold,C)
                 for lane in toUpdate:
                     self.lanes[lane].updateFlow()
+    # def action(self,params):
+    #     traci.simulationStep()
+    #     for vehicle in traci.vehicle.getIDList():
+    #         vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+    #         if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+    #             traci.vehicle.setColor(vehicle,(0,255,0))
+    #         else:
+    #             traci.vehicle.setColor(vehicle,(255,0,100))
+    #     # threshold=params[0]*50
+    #     # C=params[1]*50
+    #     for i in range(len(self.junctions)): 
+    #         speed=10+params[i]*30
+    #         # print(self.junctions[i].ID,":",threshold,C)
+    #         self.junctions[i].restrictDrivingMode()
+    #         toUpdate=self.junctions[i].detectArrival()
+    #         if toUpdate:
+    #             self.junctions[i].coordinate(speed)
+    #             for lane in toUpdate:
+    #                 self.lanes[lane].updateFlow()
     
     def getFlow(self,lane):
         return self.lanes[lane].flow

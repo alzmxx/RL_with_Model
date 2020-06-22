@@ -134,7 +134,7 @@ class junction:
                 set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
 
 
-    def coordinate(self,threshold=30,C=-20,link=None):
+    def coordinate(self,threshold=30,C=-20,routeSelector=None):
         self.temp_vehicle.clear()
         self.onLaneVehicles.clear()
         index=0
@@ -206,15 +206,15 @@ class junction:
             self.decelerate(threshold,C)
         self.lead_vehicle=self.temp_vehicle[-1]
         self.lead_time=self.temp_time
-        if link and self.lead_vehicle:
-            traci.vehicle.setVia(self.lead_vehicle,[link])
-    
+        if routeSelector:
+            for vehicle in self.temp_vehicle:
+                traci.vehicle.setRoute(vehicle,[traci.vehicle.getRoadID(temp),vehicle[8:]])
 
 import numpy as np
 from gym import spaces
 class network:
     
-    def __init__(self,path,ui,sumocfgPath,steptime=60):
+    def __init__(self,path,ui,sumocfgPath,steptime=500):
         net=sumolib.net.readNet(path)
         self.junctions=[]
         self.lanes={}
@@ -225,15 +225,17 @@ class network:
             if "junction" in node.getID() and node.getID()[9:] not in ["10","12"]:
                 self.junctions.append(junction(node.getID(),node.getIncoming(),node.getOutgoing(),node.getCoord()))
         for edge in net.getEdges():
-            if "link" in edge.getID() and edge.getID()[4:] in ["1","3","5"]:
+            # if "link" in edge.getID() and edge.getID()[4:] in ["1","3","5"]:
+            if "link" in edge.getID():
                 self.lanes[edge.getID()]=lane(edge.getID())
         # lowVals=np.array([0,0]*(len(self.junctions)))
         # highVals=np.array([1,1]*(len(self.junctions)))
         # self.action_space=spaces.Box(low=lowVals, high=highVals)
 
-        self.action_space=spaces.Discrete(10)
+        self.action_space=spaces.Discrete(100)
         self.steptime=steptime
-        self.observation_space=spaces.Box(np.array([0]*(3)),np.array([1]*(3)))
+        # self.observation_space=spaces.Box(np.array([0]*(3)),np.array([1]*(3)))
+        self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-8)),np.array([1]*(len(self.lanes)-8)))
         # self.baseline=self.getBaseline()
         # self.reset()
 
@@ -247,10 +249,12 @@ class network:
 
         observation=self.get_observation()
         # reward=(self.baseline-totalcost)/totalcost
-        if traci.simulation.getTime()>8700:
-            done=True
-        else:
-            done=False
+        # if traci.simulation.getTime()>8700:
+        # if totalcost>40:
+        #     done=True
+        # else:
+        #     done=False
+        done=False
         # print("params:")
         # print(params)
         # print("observations:")
@@ -260,28 +264,29 @@ class network:
         print("action:",params)
         print("stepcost:",totalcost)
 
-        # return observation, (20-totalcost)/10, done, {}
-        return observation, totalcost, done, {}
+        # return observation, (40-totalcost)/20, done, {}
+        return observation, (1800-totalcost)/1000, done, {}
     
     def render(self, mode='human', close=False):
         return
 
-    # def get_observation(self):
-    #     flows=[]
-    #     for lane in self.lanes:
-    #         flows.append(self.getFlow(lane)*30)
-    #     observation=np.array(flows)
-    #     return observation
     def get_observation(self):
         flows=[]
         for lane in self.lanes:
-            # if lane[4:] not in ["2","17","8","12","6","14","15","18"]:
-            flows.append(self.getFlow(lane)*20)
+            if lane[4:] not in ["2","17","8","12","6","14","15","18"]:
+                flows.append(self.getFlow(lane)*20)
         observation=np.array(flows)
         return observation
+    # def get_observation(self):
+    #     flows=[]
+    #     for lane in self.lanes:
+    #         # if lane[4:] not in ["2","17","8","12","6","14","15","18"]:
+    #         flows.append(traci.edge.getLastStepVehicleNumber(lane)/10)
+    #     observation=np.array(flows)
+    #     return observation
     def reset(self):
         traci.close()
-        # gr.generate_routefile()
+        gr.generate_routefile()
         traci.start([sumolib.checkBinary(self.ui), '-c', os.path.join(self.sumocfgPath)])
         simpla.load("data/simpla.cfg.xml")
         for junction in self.junctions:
@@ -363,8 +368,9 @@ class network:
             if toUpdate:
                 
                 if self.junctions[i].ID=="junction5":
-                    threshold=params*5
-                    C=-20
+                    threshold=params%10*5
+                    C=params//10
+                    routeselector=None
                     self.junctions[i].coordinate(threshold,C)
                 for lane in toUpdate:
                     if lane in self.lanes:

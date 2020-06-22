@@ -36,7 +36,7 @@ sumoBinary = checkBinary('sumo')
 # begin the simulation
 
 # generate the final SUMO file, include net file and vehicle file
-traci.start([sumoBinary, '-c', os.path.join('Nguyen-Dupuis/Nguyen.sumocfg')])
+traci.start([sumoBinary, '-c', os.path.join("Nguyen-Dupuis/Nguyen.sumocfg")])
 
 simpla.load("data/simpla.cfg.xml")
 mgr=simpla._mgr
@@ -85,10 +85,10 @@ tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
 
-dqn.fit(env, nb_steps=3000, nb_max_episode_steps=100, visualize=True, verbose=2,callbacks=[tensorboard_callback])
+#dqn.fit(env, nb_steps=6000, nb_max_episode_steps=20, visualize=True, verbose=2,callbacks=[tensorboard_callback])
 
-# # # After training is done, we save the final weights.
-dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
+# # After training is done, we save the final weights.
+# dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
 
 # Finally, evaluate our algorithm for 5 episodes.
-# dqn.test(env, nb_episodes=1, nb_max_episode_steps=100,callbacks=[tensorboard_callback])
+dqn.test(env, nb_episodes=1, nb_max_episode_steps=20,callbacks=[tensorboard_callback])

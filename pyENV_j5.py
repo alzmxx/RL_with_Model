@@ -214,7 +214,7 @@ import numpy as np
 from gym import spaces
 class network:
     
-    def __init__(self,path,ui,sumocfgPath,steptime=60):
+    def __init__(self,path,ui,sumocfgPath,steptime=300):
         net=sumolib.net.readNet(path)
         self.junctions=[]
         self.lanes={}
@@ -229,9 +229,14 @@ class network:
         # lowVals=np.array([0,0]*(len(self.junctions)))
         # highVals=np.array([1,1]*(len(self.junctions)))
         # self.action_space=spaces.Box(low=lowVals, high=highVals)
-        lowVals=np.array([0,0])
-        highVals=np.array([1,1])
-        self.action_space=spaces.Box(low=lowVals, high=highVals)
+        # lowVals=np.array([0,0])
+        # highVals=np.array([1,1])
+        self.action_space = spaces.Box(
+            low=np.array([0,0]),
+            high=np.array([1,1]), shape=(2,),
+            dtype=np.float32
+        )
+        
         self.steptime=steptime
         self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-8)),np.array([1]*(len(self.lanes)-8)))
         # self.baseline=self.getBaseline()
@@ -251,11 +256,11 @@ class network:
             done=True
         else:
             done=False
-        # print("params:")
-        # print(params)
-        # print("observations:")
-        # print(observation)
-        return observation, (70-totalcost)/35, done, {}
+        print("params:")
+        print(params)
+        print("observations:")
+        print(observation)
+        return observation, (350-totalcost)/175, done, {}
         # return observation, totalcost, done, {}
     
     def render(self, mode='human', close=False):

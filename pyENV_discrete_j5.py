@@ -214,7 +214,7 @@ import numpy as np
 from gym import spaces
 class network:
     
-    def __init__(self,path,ui,sumocfgPath,steptime=500):
+    def __init__(self,path,ui,sumocfgPath,steptime=300):
         net=sumolib.net.readNet(path)
         self.junctions=[]
         self.lanes={}
@@ -232,7 +232,7 @@ class network:
         # highVals=np.array([1,1]*(len(self.junctions)))
         # self.action_space=spaces.Box(low=lowVals, high=highVals)
 
-        self.action_space=spaces.Discrete(100)
+        self.action_space=spaces.Discrete(10)
         self.steptime=steptime
         # self.observation_space=spaces.Box(np.array([0]*(3)),np.array([1]*(3)))
         self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-8)),np.array([1]*(len(self.lanes)-8)))
@@ -264,8 +264,8 @@ class network:
         print("action:",params)
         print("stepcost:",totalcost)
 
-        # return observation, (40-totalcost)/20, done, {}
-        return observation, (1800-totalcost)/1000, done, {}
+        return observation, -totalcost, done, {}
+        # return observation, (1800-totalcost)/1000, done, {}
     
     def render(self, mode='human', close=False):
         return
@@ -358,6 +358,23 @@ class network:
                 traci.vehicle.setColor(vehicle,(255,0,100))
         # threshold=params[0]*50
         # C=params[1]*50
+        # for i in range(len(self.junctions)): 
+            
+            
+        #     # print(self.junctions[i].ID,":",threshold,C)
+        #     self.junctions[i].restrictDrivingMode()
+            
+        #     toUpdate=self.junctions[i].detectArrival()
+        #     if toUpdate:
+                
+        #         if self.junctions[i].ID=="junction5":
+        #             threshold=params%10*5
+        #             C=params//10
+        #             routeselector=None
+        #             self.junctions[i].coordinate(threshold,C)
+        #         for lane in toUpdate:
+        #             if lane in self.lanes:
+        #                 self.lanes[lane].updateFlow()
         for i in range(len(self.junctions)): 
             
             
@@ -368,8 +385,8 @@ class network:
             if toUpdate:
                 
                 if self.junctions[i].ID=="junction5":
-                    threshold=params%10*5
-                    C=params//10
+                    threshold=params*5
+                    C=-50
                     routeselector=None
                     self.junctions[i].coordinate(threshold,C)
                 for lane in toUpdate:

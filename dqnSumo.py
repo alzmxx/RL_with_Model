@@ -85,7 +85,7 @@ tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
 
-#dqn.fit(env, nb_steps=6000, nb_max_episode_steps=20, visualize=True, verbose=2,callbacks=[tensorboard_callback])
+# dqn.fit(env, nb_steps=4000, nb_max_episode_steps=20, visualize=True, verbose=2,callbacks=[tensorboard_callback])
 
 # # After training is done, we save the final weights.
 # dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)

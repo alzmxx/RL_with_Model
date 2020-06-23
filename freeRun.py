@@ -270,7 +270,7 @@ class network:
     def reset(self):
         traci.close()
         gr.generate_routefile()
-        traci.start([sumolib.checkBinary(self.ui), '-c', os.path.join('data',self.sumocfgPath)])
+        traci.start([sumolib.checkBinary(self.ui), '-c', os.path.join(self.sumocfgPath)])
         simpla.load("data/simpla.cfg.xml")
         for junction in self.junctions:
             for lane in self.lanes:
@@ -351,47 +351,6 @@ class network:
 
 
     
-
-# def make(ui,sumocfgPath,netFilePath):
-#     try:
-#         sys.path.append(os.path.join(os.path.dirname(
-#         __file__), '..', '..', '..', '..', "tools"))
-#         sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
-#         os.path.dirname(__file__), "..", "..", "..")), "tools")) 
-        
-#     except ImportError:
-#         sys.exit("please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
-
-
-#     global sumoBinary,netconvertBinary
-#     # choose whether to use GUI or not
-#     netconvertBinary = checkBinary('netconvert')
-#     sumoBinary = checkBinary(ui)
-
-
-#     # begin the simulation
-
-#     #print('Current threshold: ', threshold)
-
-#     # choose random seed values
-#     #seed=random.randint(2,23423)
-#     seed = 16042
-#     #gs.random_experiment(seed)
-
-                        
-#     # generate the vehicle departure time and departure lane
-#     #platoon_index = gr.generate_routefile()
-
-#     # generate the final SUMO file, include net file and vehicle file
-#     traci.start([sumoBinary, '-c', os.path.join('data', sumocfgPath)])
-
-#     simpla.load("data/simpla.cfg.xml")
-#     mgr=simpla._mgr
-#     newnet=network(netFilePath,ui,sumocfgPath)
-
-    
-#     return newnet
-# env = make("sumo-gui",'C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/singleJunction.sumocfg',"C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/singleJunction.net.xml")
 if __name__ == "__main__":
 
 	# find SUMO path and start the sumo program
@@ -425,15 +384,16 @@ if __name__ == "__main__":
     #platoon_index = gr.generate_routefile()
 
     # generate the final SUMO file, include net file and vehicle file
-    traci.start([sumoBinary, '-c', os.path.join('data', 'C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/Nguyen.sumocfg')])
+    traci.start([sumoBinary, '-c', os.path.join('Nguyen-Dupuis/Nguyen.sumocfg')])
 
     simpla.load("data/simpla.cfg.xml")
     mgr=simpla._mgr
-    newnet=network("C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/newND.net.xml","sumo-gui",'C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/Nguyen.sumocfg')
+    newnet=network("Nguyen-Dupuis/newND.net.xml","sumo-gui",'Nguyen-Dupuis/Nguyen.sumocfg')
     totalcost=0
     totalfuel=0
     totaltime=0
     print(totalcost,totalfuel,totaltime)
+
     for k in range(6000):
         # print(newnet.action())
         # newnet.action([50,-40]*len(newnet.junctions))

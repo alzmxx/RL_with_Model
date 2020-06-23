@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes>
+
+	<route id="route0" edges="start1 end1" />
+    <route id="route1" edges="start1 end2" />
+    <route id="route2" edges="start2 end1" />
+    <route id="route3" edges="start2 end2" />
+
+
+    <vType id="conventional" vClass="passenger" sigma="1" maxSpeed="40.0" color="red" accel="10.0"/>
+    <vType id="connected" vClass="passenger" tau="1.3" maxSpeed="28.00" lcCooperative="0.0" color="1,1,0" lcStrategic="1.0" accel="3.0" decel="1.5" emergencyDecel="4.5" lcSpeedGain="0.3" sigma="0.0" lcKeepRight="0.3"/>
+    <vType id="connected_pCatchupFollower" vClass="passenger" emergencyDecel="10.5" length="5" tau="0.1" maxSpeed="28.00" color="1,1,0" accel="10.3" decel="1.7" sigma="0.0" minGap="2.0"/>
+    <vType id="connected_pCatchup" vClass="passenger" tau="0.1" emergencyDecel="2.0" maxSpeed="28.00" color="0,0.8,0.3" accel="10.3" decel="1.7" sigma="0.0" minGap="2.0"/>
+    <vType id="connected_pFollower" vClass="passenger" tau="0.1" maxSpeed="28.00" color="1,1,0" accel="10.3" decel="1.7" sigma="0.0"  minGap="2.0" />
+    <vType id="connected_pLeader" vClass="passenger" length="5" tau="1.3" maxSpeed="28.00" lcCooperative="0.0" color="1,1,0" lcStrategic="1.0" accel="2.0" decel="1.5" emergencyDecel="4.5" lcSpeedGain="0.3" sigma="0.0" lcKeepRight="0.3"/>
+    
+
+
+	
+    <trip id="start1Toend1_0" type="connected" color="1,1,0" from="start1" to="end1" depart="0.000000" />
+    <trip id="start2Toend1_0" type="connected" color="1,1,0" from="start2" to="end1" depart="0.000000" />
+    <trip id="start1Toend1_1" type="connected" color="1,1,0" from="start1" to="end1" depart="20.403791" />
+    <trip id="start2Toend1_1" type="connected" color="1,1,0" from="start2" to="end1" depart="105.267612" />
+    <trip id="start2Toend1_2" type="connected" color="1,1,0" from="start2" to="end1" depart="115.161171" />
+    <trip id="start1Toend1_2" type="connected" color="1,1,0" from="start1" to="end1" depart="186.881036" />
+    <trip id="start2Toend1_3" type="connected" color="1,1,0" from="start2" to="end1" depart="282.536350" />
+    <trip id="start2Toend1_4" type="connected" color="1,1,0" from="start2" to="end1" depart="311.099840" />
+    <trip id="start1Toend1_3" type="connected" color="1,1,0" from="start1" to="end1" depart="335.007657" />
+    <trip id="start1Toend1_4" type="connected" color="1,1,0" from="start1" to="end1" depart="352.935676" />
+    <trip id="start2Toend1_5" type="connected" color="1,1,0" from="start2" to="end1" depart="373.304795" />
+    <trip id="start2Toend1_6" type="connected" color="1,1,0" from="start2" to="end1" depart="447.084118" />
+    <trip id="start1Toend1_5" type="connected" color="1,1,0" from="start1" to="end1" depart="477.206515" />
+    <trip id="start1Toend1_6" type="connected" color="1,1,0" from="start1" to="end1" depart="488.234751" />
+    <trip id="start1Toend1_7" type="connected" color="1,1,0" from="start1" to="end1" depart="531.411728" />
+    <trip id="start2Toend1_7" type="connected" color="1,1,0" from="start2" to="end1" depart="555.287375" />
+    <trip id="start2Toend1_8" type="connected" color="1,1,0" from="start2" to="end1" depart="657.151770" />
+    <trip id="start1Toend1_8" type="connected" color="1,1,0" from="start1" to="end1" depart="695.122696" />
+    <trip id="start2Toend1_9" type="connected" color="1,1,0" from="start2" to="end1" depart="778.224979" />
+    <trip id="start2Toend1_10" type="connected" color="1,1,0" from="start2" to="end1" depart="793.570529" />
+    <trip id="start1Toend1_9" type="connected" color="1,1,0" from="start1" to="end1" depart="846.681754" />
+    <trip id="start1Toend1_10" type="connected" color="1,1,0" from="start1" to="end1" depart="906.864775" />
+    <trip id="start2Toend1_11" type="connected" color="1,1,0" from="start2" to="end1" depart="931.588455" />
+    <trip id="start1Toend1_11" type="connected" color="1,1,0" from="start1" to="end1" depart="973.838873" />
+    <trip id="start2Toend1_12" type="connected" color="1,1,0" from="start2" to="end1" depart="981.838033" />
+    <trip id="start1Toend1_12" type="connected" color="1,1,0" from="start1" to="end1" depart="990.258995" />
+    <trip id="start1Toend1_13" type="connected" color="1,1,0" from="start1" to="end1" depart="1137.669237" />
+    <trip id="start2Toend1_13" type="connected" color="1,1,0" from="start2" to="end1" depart="1140.725877" />
+    <trip id="start1Toend1_14" type="connected" color="1,1,0" from="start1" to="end1" depart="1211.780501" />
+    <trip id="start1Toend1_15" type="connected" color="1,1,0" from="start1" to="end1" depart="1256.344587" />
+    <trip id="start2Toend1_14" type="connected" color="1,1,0" from="start2" to="end1" depart="1267.666381" />
+    <trip id="start1Toend1_16" type="connected" color="1,1,0" from="start1" to="end1" depart="1303.407979" />
+    <trip id="start1Toend1_17" type="connected" color="1,1,0" from="start1" to="end1" depart="1336.749351" />
+    <trip id="start2Toend1_15" type="connected" color="1,1,0" from="start2" to="end1" depart="1385.986201" />
+    <trip id="start2Toend1_16" type="connected" color="1,1,0" from="start2" to="end1" depart="1386.684806" />
+    <trip id="start1Toend1_18" type="connected" color="1,1,0" from="start1" to="end1" depart="1414.326185" />
+    <trip id="start2Toend1_17" type="connected" color="1,1,0" from="start2" to="end1" depart="1416.882481" />
+    <trip id="start1Toend1_19" type="connected" color="1,1,0" from="start1" to="end1" depart="1420.715379" />
+    <trip id="start1Toend1_20" type="connected" color="1,1,0" from="start1" to="end1" depart="1453.362149" />
+    <trip id="start2Toend1_18" type="connected" color="1,1,0" from="start2" to="end1" depart="1459.656185" />
+    <trip id="start1Toend1_21" type="connected" color="1,1,0" from="start1" to="end1" depart="1510.050397" />
+    <trip id="start2Toend1_19" type="connected" color="1,1,0" from="start2" to="end1" depart="1599.277666" />
+    <trip id="start2Toend1_20" type="connected" color="1,1,0" from="start2" to="end1" depart="1654.283509" />
+    <trip id="start1Toend1_22" type="connected" color="1,1,0" from="start1" to="end1" depart="1705.878524" />
+    <trip id="start1Toend1_23" type="connected" color="1,1,0" from="start1" to="end1" depart="1744.458665" />
+    <trip id="start2Toend1_21" type="connected" color="1,1,0" from="start2" to="end1" depart="1764.526265" />
+    <trip id="start1Toend1_24" type="connected" color="1,1,0" from="start1" to="end1" depart="1766.591779" />
+    <trip id="start2Toend1_22" type="connected" color="1,1,0" from="start2" to="end1" depart="1792.619868" />
+    <trip id="start1Toend1_25" type="connected" color="1,1,0" from="start1" to="end1" depart="1897.623072" />
+    <trip id="start2Toend1_23" type="connected" color="1,1,0" from="start2" to="end1" depart="1922.650370" />
+    <trip id="start2Toend1_24" type="connected" color="1,1,0" from="start2" to="end1" depart="1931.427932" />
+    <trip id="start2Toend1_25" type="connected" color="1,1,0" from="start2" to="end1" depart="1991.950795" />
+    <trip id="start1Toend1_26" type="connected" color="1,1,0" from="start1" to="end1" depart="2002.014814" />
+    <trip id="start1Toend1_27" type="connected" color="1,1,0" from="start1" to="end1" depart="2026.355725" />
+    <trip id="start2Toend1_26" type="connected" color="1,1,0" from="start2" to="end1" depart="2122.459114" />
+    <trip id="start1Toend1_28" type="connected" color="1,1,0" from="start1" to="end1" depart="2174.092598" />
+    <trip id="start1Toend1_29" type="connected" color="1,1,0" from="start1" to="end1" depart="2219.398620" />
+    <trip id="start2Toend1_27" type="connected" color="1,1,0" from="start2" to="end1" depart="2263.677494" />
+    <trip id="start1Toend1_30" type="connected" color="1,1,0" from="start1" to="end1" depart="2295.594395" />
+    <trip id="start2Toend1_28" type="connected" color="1,1,0" from="start2" to="end1" depart="2379.971735" />
+    <trip id="start1Toend1_31" type="connected" color="1,1,0" from="start1" to="end1" depart="2415.506759" />
+    <trip id="start1Toend1_32" type="connected" color="1,1,0" from="start1" to="end1" depart="2500.926422" />
+    <trip id="start2Toend1_29" type="connected" color="1,1,0" from="start2" to="end1" depart="2524.258234" />
+    <trip id="start1Toend1_33" type="connected" color="1,1,0" from="start1" to="end1" depart="2525.245910" />
+    <trip id="start1Toend1_34" type="connected" color="1,1,0" from="start1" to="end1" depart="2589.110488" />
+    <trip id="start1Toend1_35" type="connected" color="1,1,0" from="start1" to="end1" depart="2602.048150" />
+    <trip id="start2Toend1_30" type="connected" color="1,1,0" from="start2" to="end1" depart="2607.423737" />
+    <trip id="start1Toend1_36" type="connected" color="1,1,0" from="start1" to="end1" depart="2633.421775" />
+    <trip id="start2Toend1_31" type="connected" color="1,1,0" from="start2" to="end1" depart="2673.530215" />
+    <trip id="start2Toend1_32" type="connected" color="1,1,0" from="start2" to="end1" depart="2730.537054" />
+    <trip id="start1Toend1_37" type="connected" color="1,1,0" from="start1" to="end1" depart="2740.664440" />
+    <trip id="start1Toend1_38" type="connected" color="1,1,0" from="start1" to="end1" depart="2800.024936" />
+    <trip id="start1Toend1_39" type="connected" color="1,1,0" from="start1" to="end1" depart="2820.606407" />
+    <trip id="start1Toend1_40" type="connected" color="1,1,0" from="start1" to="end1" depart="2993.739112" />
+    <trip id="start2Toend1_33" type="connected" color="1,1,0" from="start2" to="end1" depart="3017.484361" />
+    <trip id="start2Toend1_34" type="connected" color="1,1,0" from="start2" to="end1" depart="3054.631750" />
+    <trip id="start1Toend1_41" type="connected" color="1,1,0" from="start1" to="end1" depart="3097.506065" />
+    <trip id="start2Toend1_35" type="connected" color="1,1,0" from="start2" to="end1" depart="3267.895228" />
+    <trip id="start1Toend1_42" type="connected" color="1,1,0" from="start1" to="end1" depart="3334.043299" />
+    <trip id="start1Toend1_43" type="connected" color="1,1,0" from="start1" to="end1" depart="3400.233345" />
+    <trip id="start2Toend1_36" type="connected" color="1,1,0" from="start2" to="end1" depart="3400.590031" />
+    <trip id="start1Toend1_44" type="connected" color="1,1,0" from="start1" to="end1" depart="3439.837522" />
+    <trip id="start1Toend1_45" type="connected" color="1,1,0" from="start1" to="end1" depart="3462.859452" />
+    <trip id="start2Toend1_37" type="connected" color="1,1,0" from="start2" to="end1" depart="3497.238730" />
+    <trip id="start1Toend1_46" type="connected" color="1,1,0" from="start1" to="end1" depart="3568.943312" />
+    <trip id="start2Toend1_38" type="connected" color="1,1,0" from="start2" to="end1" depart="3658.158093" />
+    <trip id="start2Toend1_39" type="connected" color="1,1,0" from="start2" to="end1" depart="3668.420667" />
+    <trip id="start2Toend1_40" type="connected" color="1,1,0" from="start2" to="end1" depart="3694.020692" />
+    <trip id="start2Toend1_41" type="connected" color="1,1,0" from="start2" to="end1" depart="3703.321994" />
+    <trip id="start1Toend1_47" type="connected" color="1,1,0" from="start1" to="end1" depart="3730.721789" />
+    <trip id="start1Toend1_48" type="connected" color="1,1,0" from="start1" to="end1" depart="3750.676731" />
+    <trip id="start1Toend1_49" type="connected" color="1,1,0" from="start1" to="end1" depart="3882.620401" />
+    <trip id="start1Toend1_50" type="connected" color="1,1,0" from="start1" to="end1" depart="3949.967765" />
+    <trip id="start1Toend1_51" type="connected" color="1,1,0" from="start1" to="end1" depart="3950.252379" />
+    <trip id="start1Toend1_52" type="connected" color="1,1,0" from="start1" to="end1" depart="3960.016306" />
+    <trip id="start2Toend1_42" type="connected" color="1,1,0" from="start2" to="end1" depart="4019.220731" />
+    <trip id="start1Toend1_53" type="connected" color="1,1,0" from="start1" to="end1" depart="4072.602111" />
+    <trip id="start1Toend1_54" type="connected" color="1,1,0" from="start1" to="end1" depart="4080.456700" />
+    <trip id="start2Toend1_43" type="connected" color="1,1,0" from="start2" to="end1" depart="4104.147533" />
+    <trip id="start2Toend1_44" type="connected" color="1,1,0" from="start2" to="end1" depart="4127.027515" />
+    <trip id="start2Toend1_45" type="connected" color="1,1,0" from="start2" to="end1" depart="4182.633656" />
+    <trip id="start2Toend1_46" type="connected" color="1,1,0" from="start2" to="end1" depart="4206.064677" />
+    <trip id="start1Toend1_55" type="connected" color="1,1,0" from="start1" to="end1" depart="4219.814905" />
+    <trip id="start2Toend1_47" type="connected" color="1,1,0" from="start2" to="end1" depart="4233.474280" />
+    <trip id="start2Toend1_48" type="connected" color="1,1,0" from="start2" to="end1" depart="4342.679105" />
+    <trip id="start2Toend1_49" type="connected" color="1,1,0" from="start2" to="end1" depart="4389.914119" />
+    <trip id="start2Toend1_50" type="connected" color="1,1,0" from="start2" to="end1" depart="4409.340318" />
+    <trip id="start2Toend1_51" type="connected" color="1,1,0" from="start2" to="end1" depart="4480.794952" />
+    <trip id="start2Toend1_52" type="connected" color="1,1,0" from="start2" to="end1" depart="4489.751660" />
+    <trip id="start1Toend1_56" type="connected" color="1,1,0" from="start1" to="end1" depart="4518.479025" />
+    <trip id="start2Toend1_53" type="connected" color="1,1,0" from="start2" to="end1" depart="4529.970559" />
+    <trip id="start2Toend1_54" type="connected" color="1,1,0" from="start2" to="end1" depart="4571.298617" />
+    <trip id="start2Toend1_55" type="connected" color="1,1,0" from="start2" to="end1" depart="4629.325127" />
+    <trip id="start2Toend1_56" type="connected" color="1,1,0" from="start2" to="end1" depart="4642.504300" />
+    <trip id="start2Toend1_57" type="connected" color="1,1,0" from="start2" to="end1" depart="4643.021450" />
+    <trip id="start1Toend1_57" type="connected" color="1,1,0" from="start1" to="end1" depart="4701.739343" />
+    <trip id="start2Toend1_58" type="connected" color="1,1,0" from="start2" to="end1" depart="4708.889716" />
+    <trip id="start2Toend1_59" type="connected" color="1,1,0" from="start2" to="end1" depart="4722.012526" />
+    <trip id="start2Toend1_60" type="connected" color="1,1,0" from="start2" to="end1" depart="4748.229700" />
+    <trip id="start2Toend1_61" type="connected" color="1,1,0" from="start2" to="end1" depart="4773.946508" />
+    <trip id="start1Toend1_58" type="connected" color="1,1,0" from="start1" to="end1" depart="4833.365704" />
+    <trip id="start2Toend1_62" type="connected" color="1,1,0" from="start2" to="end1" depart="4844.953917" />
+    <trip id="start1Toend1_59" type="connected" color="1,1,0" from="start1" to="end1" depart="4874.894146" />
+    <trip id="start2Toend1_63" type="connected" color="1,1,0" from="start2" to="end1" depart="4923.325574" />
+    <trip id="start1Toend1_60" type="connected" color="1,1,0" from="start1" to="end1" depart="4951.366824" />
+    <trip id="start1Toend1_61" type="connected" color="1,1,0" from="start1" to="end1" depart="5015.814683" />
+    <trip id="start2Toend1_64" type="connected" color="1,1,0" from="start2" to="end1" depart="5067.020712" />
+    <trip id="start2Toend1_65" type="connected" color="1,1,0" from="start2" to="end1" depart="5093.827361" />
+    <trip id="start1Toend1_62" type="connected" color="1,1,0" from="start1" to="end1" depart="5168.256924" />
+    <trip id="start1Toend1_63" type="connected" color="1,1,0" from="start1" to="end1" depart="5170.085942" />
+    <trip id="start2Toend1_66" type="connected" color="1,1,0" from="start2" to="end1" depart="5212.340358" />
+    <trip id="start1Toend1_64" type="connected" color="1,1,0" from="start1" to="end1" depart="5244.303586" />
+    <trip id="start1Toend1_65" type="connected" color="1,1,0" from="start1" to="end1" depart="5253.170141" />
+    <trip id="start2Toend1_67" type="connected" color="1,1,0" from="start2" to="end1" depart="5264.587475" />
+    <trip id="start1Toend1_66" type="connected" color="1,1,0" from="start1" to="end1" depart="5320.214662" />
+    <trip id="start2Toend1_68" type="connected" color="1,1,0" from="start2" to="end1" depart="5418.592215" />
+    <trip id="start1Toend1_67" type="connected" color="1,1,0" from="start1" to="end1" depart="5442.917177" />
+    <trip id="start2Toend1_69" type="connected" color="1,1,0" from="start2" to="end1" depart="5464.664327" />
+    <trip id="start1Toend1_68" type="connected" color="1,1,0" from="start1" to="end1" depart="5480.885026" />
+    <trip id="start2Toend1_70" type="connected" color="1,1,0" from="start2" to="end1" depart="5514.615526" />
+    <trip id="start2Toend1_71" type="connected" color="1,1,0" from="start2" to="end1" depart="5535.652814" />
+    <trip id="start1Toend1_69" type="connected" color="1,1,0" from="start1" to="end1" depart="5544.299899" />
+    <trip id="start1Toend1_70" type="connected" color="1,1,0" from="start1" to="end1" depart="5554.243897" />
+    <trip id="start1Toend1_71" type="connected" color="1,1,0" from="start1" to="end1" depart="5634.172875" />
+    <trip id="start2Toend1_72" type="connected" color="1,1,0" from="start2" to="end1" depart="5669.504572" />
+    <trip id="start2Toend1_73" type="connected" color="1,1,0" from="start2" to="end1" depart="5749.179202" />
+    <trip id="start1Toend1_72" type="connected" color="1,1,0" from="start1" to="end1" depart="5754.738977" />
+    <trip id="start2Toend1_74" type="connected" color="1,1,0" from="start2" to="end1" depart="5791.504232" />
+    <trip id="start2Toend1_75" type="connected" color="1,1,0" from="start2" to="end1" depart="5879.196266" />
+    <trip id="start2Toend1_76" type="connected" color="1,1,0" from="start2" to="end1" depart="5888.359569" />
+    <trip id="start1Toend1_73" type="connected" color="1,1,0" from="start1" to="end1" depart="5919.358783" />
+    <trip id="start1Toend1_74" type="connected" color="1,1,0" from="start1" to="end1" depart="6008.735949" />
+    <trip id="start1Toend1_75" type="connected" color="1,1,0" from="start1" to="end1" depart="6031.260431" />
+    <trip id="start2Toend1_77" type="connected" color="1,1,0" from="start2" to="end1" depart="6111.447026" />
+    <trip id="start2Toend1_78" type="connected" color="1,1,0" from="start2" to="end1" depart="6154.192816" />
+    <trip id="start2Toend1_79" type="connected" color="1,1,0" from="start2" to="end1" depart="6159.532977" />
+    <trip id="start1Toend1_76" type="connected" color="1,1,0" from="start1" to="end1" depart="6249.745791" />
+    <trip id="start2Toend1_80" type="connected" color="1,1,0" from="start2" to="end1" depart="6370.312290" />
+    <trip id="start1Toend1_77" type="connected" color="1,1,0" from="start1" to="end1" depart="6568.201892" />
+    <trip id="start1Toend1_78" type="connected" color="1,1,0" from="start1" to="end1" depart="6575.644123" />
+    <trip id="start1Toend1_79" type="connected" color="1,1,0" from="start1" to="end1" depart="6615.989144" />
+    <trip id="start2Toend1_81" type="connected" color="1,1,0" from="start2" to="end1" depart="6644.168471" />
+    <trip id="start2Toend1_82" type="connected" color="1,1,0" from="start2" to="end1" depart="6649.656711" />
+    <trip id="start2Toend1_83" type="connected" color="1,1,0" from="start2" to="end1" depart="6679.183027" />
+    <trip id="start2Toend1_84" type="connected" color="1,1,0" from="start2" to="end1" depart="6754.198584" />
+    <trip id="start1Toend1_80" type="connected" color="1,1,0" from="start1" to="end1" depart="6806.472241" />
+    <trip id="start2Toend1_85" type="connected" color="1,1,0" from="start2" to="end1" depart="6822.486923" />
+    <trip id="start1Toend1_81" type="connected" color="1,1,0" from="start1" to="end1" depart="6866.519247" />
+    <trip id="start1Toend1_82" type="connected" color="1,1,0" from="start1" to="end1" depart="6872.179911" />
+    <trip id="start2Toend1_86" type="connected" color="1,1,0" from="start2" to="end1" depart="6873.252065" />
+    <trip id="start1Toend1_83" type="connected" color="1,1,0" from="start1" to="end1" depart="6898.444209" />
+    <trip id="start2Toend1_87" type="connected" color="1,1,0" from="start2" to="end1" depart="6961.805634" />
+    <trip id="start1Toend1_84" type="connected" color="1,1,0" from="start1" to="end1" depart="7022.217515" />
+    <trip id="start2Toend1_88" type="connected" color="1,1,0" from="start2" to="end1" depart="7026.883833" />
+    <trip id="start2Toend1_89" type="connected" color="1,1,0" from="start2" to="end1" depart="7065.790592" />
+    <trip id="start1Toend1_85" type="connected" color="1,1,0" from="start1" to="end1" depart="7120.740166" />
+    <trip id="start1Toend1_86" type="connected" color="1,1,0" from="start1" to="end1" depart="7128.579858" />
+    <trip id="start2Toend1_90" type="connected" color="1,1,0" from="start2" to="end1" depart="7245.662375" />
+    <trip id="start2Toend1_91" type="connected" color="1,1,0" from="start2" to="end1" depart="7252.730653" />
+    <trip id="start1Toend1_87" type="connected" color="1,1,0" from="start1" to="end1" depart="7403.463294" />
+    <trip id="start1Toend1_88" type="connected" color="1,1,0" from="start1" to="end1" depart="7462.672905" />
+    <trip id="start2Toend1_92" type="connected" color="1,1,0" from="start2" to="end1" depart="7527.634405" />
+    <trip id="start2Toend1_93" type="connected" color="1,1,0" from="start2" to="end1" depart="7543.304854" />
+    <trip id="start1Toend1_89" type="connected" color="1,1,0" from="start1" to="end1" depart="7558.867976" />
+    <trip id="start1Toend1_90" type="connected" color="1,1,0" from="start1" to="end1" depart="7577.935442" />
+    <trip id="start2Toend1_94" type="connected" color="1,1,0" from="start2" to="end1" depart="7603.739822" />
+    <trip id="start2Toend1_95" type="connected" color="1,1,0" from="start2" to="end1" depart="7605.905140" />
+    <trip id="start2Toend1_96" type="connected" color="1,1,0" from="start2" to="end1" depart="7625.389735" />
+    <trip id="start1Toend1_91" type="connected" color="1,1,0" from="start1" to="end1" depart="7634.235793" />
+    <trip id="start2Toend1_97" type="connected" color="1,1,0" from="start2" to="end1" depart="7636.787660" />
+    <trip id="start2Toend1_98" type="connected" color="1,1,0" from="start2" to="end1" depart="7640.411668" />
+    <trip id="start1Toend1_92" type="connected" color="1,1,0" from="start1" to="end1" depart="7648.805391" />
+    <trip id="start1Toend1_93" type="connected" color="1,1,0" from="start1" to="end1" depart="7719.080914" />
+    <trip id="start1Toend1_94" type="connected" color="1,1,0" from="start1" to="end1" depart="7732.806603" />
+    <trip id="start2Toend1_99" type="connected" color="1,1,0" from="start2" to="end1" depart="7737.436471" />
+    <trip id="start1Toend1_95" type="connected" color="1,1,0" from="start1" to="end1" depart="7788.113196" />
+    <trip id="start1Toend1_96" type="connected" color="1,1,0" from="start1" to="end1" depart="7877.660297" />
+    <trip id="start1Toend1_97" type="connected" color="1,1,0" from="start1" to="end1" depart="7886.486325" />
+    <trip id="start1Toend1_98" type="connected" color="1,1,0" from="start1" to="end1" depart="8188.077923" />
+    <trip id="start1Toend1_99" type="connected" color="1,1,0" from="start1" to="end1" depart="8236.591862" />
+</routes>

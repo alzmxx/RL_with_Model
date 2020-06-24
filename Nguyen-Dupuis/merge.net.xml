@@ -40,23 +40,23 @@
         <lane id=":gneJ4_0_0" index="0" speed="40.00" length="0.30" shape="29999.85,-1.60 30000.15,-1.60"/>
     </edge>
     <edge id=":junction0_0" function="internal">
-        <lane id=":junction0_0_0" index="0" speed="40.00" length="6.20" shape="-2.30,-4.57 -0.86,-3.27 0.50,-2.34 1.78,-1.79 2.98,-1.60"/>
+        <lane id=":junction0_0_0" index="0" speed="40.00" length="0" shape="-2.30,-4.57 -0.86,-3.27 0.50,-2.34 1.78,-1.79 2.98,-1.60"/>
     </edge>
     <edge id=":junction0_1" function="internal">
-        <lane id=":junction0_1_0" index="0" speed="40.00" length="2.16" shape="-2.30,0.04 -1.36,-0.68 -0.46,-1.06"/>
+        <lane id=":junction0_1_0" index="0" speed="40.00" length="0" shape="-2.30,0.04 -1.36,-0.68 -0.46,-1.06"/>
     </edge>
     <edge id=":junction0_2" function="internal">
-        <lane id=":junction0_2_0" index="0" speed="40.00" length="3.51" shape="-0.46,-1.06 -0.16,-1.19 1.29,-1.50 2.98,-1.60"/>
+        <lane id=":junction0_2_0" index="0" speed="40.00" length="0" shape="-0.46,-1.06 -0.16,-1.19 1.29,-1.50 2.98,-1.60"/>
     </edge>
 
     <edge id="end1" from="gneJ4" to="gneJ7" priority="-1">
         <lane id="end1_0" index="0" speed="40.00" length="45.63" shape="30000.15,-1.60 30045.78,-1.49"/>
     </edge>
-    <edge id="link1" from="gneJ0" to="junction0" priority="-1" length="1100.00">
-        <lane id="link1_0" index="0" speed="40.00" length="1100.00" shape="-708.13,705.87 -2.30,0.04"/>
+    <edge id="link1" from="gneJ0" to="junction0" priority="-1" length="1500.00">
+        <lane id="link1_0" index="0" speed="40.00" length="1500.00" shape="-708.13,705.87 -2.30,0.04"/>
     </edge>
-    <edge id="link2" from="gneJ2" to="junction0" priority="-1" length="1100.00">
-        <lane id="link2_0" index="0" speed="40.00" length="1100.00" shape="-705.87,-708.13 -2.30,-4.57"/>
+    <edge id="link2" from="gneJ2" to="junction0" priority="-1" length="1500.00">
+        <lane id="link2_0" index="0" speed="40.00" length="1500.00" shape="-705.87,-708.13 -2.30,-4.57"/>
     </edge>
     <edge id="link3" from="junction0" to="gneJ4" priority="-1" length="30000.00">
         <lane id="link3_0" index="0" speed="40.00" length="30000.00" shape="2.98,-1.60 29999.85,-1.60"/>

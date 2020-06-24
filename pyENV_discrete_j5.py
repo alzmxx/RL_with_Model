@@ -235,7 +235,8 @@ class network:
         self.action_space=spaces.Discrete(10)
         self.steptime=steptime
         # self.observation_space=spaces.Box(np.array([0]*(3)),np.array([1]*(3)))
-        self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-8)),np.array([1]*(len(self.lanes)-8)))
+        # self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-8)),np.array([1]*(len(self.lanes)-8)))
+        self.observation_space=spaces.Box(np.array([0]*(len(self.lanes))),np.array([1]*(len(self.lanes))))
         # self.baseline=self.getBaseline()
         # self.reset()
 

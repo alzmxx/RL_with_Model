@@ -134,7 +134,7 @@
         <lane id=":junction7_1_0" index="0" speed="50.00" length="11.20" shape="13992.80,-7001.60 14004.00,-7001.60"/>
     </edge>
     <edge id=":junction8_0" function="internal">
-        <lane id=":junction8_0_0" index="0" speed="7.31" length="11.68" shape="20989.65,-7001.60 20993.48,-7001.95 20996.21,-7003.00 20997.85,-7004.75 20998.40,-7007.20"/>
+        <lane id=":junction8_0_0" index="0" speed="50.00" length="11.68" shape="20989.65,-7001.60 20993.48,-7001.95 20996.21,-7003.00 20997.85,-7004.75 20998.40,-7007.20"/>
     </edge>
     <edge id=":junction8_1" function="internal">
         <lane id=":junction8_1_0" index="0" speed="50.00" length="13.54" shape="20991.00,-6996.60 20994.24,-6998.88 20996.55,-7001.41 20997.94,-7004.18 20998.40,-7007.20"/>

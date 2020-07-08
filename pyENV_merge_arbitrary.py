@@ -15,6 +15,7 @@ from sumolib import checkBinary
 w_1 = 25.8 / 3600  # value of time ($/hour)
 w_2 = 0.868			# oil price ($/L)
 d1 = 1000.0			# the distance of d_1 (m)
+d2=30000
 collision_time_delay = 2
 gamma=0.9
 	
@@ -27,7 +28,7 @@ class lane:
         self.lead_time=0
         self.flow=0
     
-    def updateFlow(self):
+    def updateSK(self):
         # calculate the predicted headway sk
         temp_time=traci.simulation.getTime()
         time_interval = temp_time - self.lead_time
@@ -36,15 +37,11 @@ class lane:
             self.time_interval_list.pop(0)
         self.time_interval_list.append(time_interval)
 
-        estimated_arrval_rate = 0
-        gamma_index = 0
-        for i_pop_list in range(len(self.time_interval_list)):
-            estimated_arrval_rate += self.time_interval_list[len(self.time_interval_list) - 1 - i_pop_list] * (gamma ** gamma_index)
-            gamma_index += 1
-
-        self.lead_time=temp_time
-        self.flow=1.0 / (estimated_arrval_rate * (1.0 - gamma))
-
+    def getSK(self):
+        if len(self.time_interval_list)>=2:
+            return self.time_interval_list[-1]-self.time_interval_list[-2]
+        else:
+            return 0
     def reset(self):
         self.time_interval_list.clear()
         self.lead_time=0
@@ -77,8 +74,14 @@ class junction:
         self.lead_time = 0
         self.temp_vehicle = []
         self.temp_time = 0
-        self.ini_sk = 0
-        self.sk = 0
+        
+        self.time_interval_list=[]
+    
+    def getSK(self):
+        # calculate the predicted headway sk
+        temp_time=traci.simulation.getTime()
+        time_interval = temp_time - self.lead_time
+        return time_interval
         
         # self.coordinate_matrix=[None for i in range]
     def getTotalCost(self):
@@ -120,23 +123,7 @@ class junction:
                     traci.vehicle.setSpeed(item, 24.0)
 
 
-    def decelerate(self,threshold,C):
-        
-        self.ini_sk = C
-        # not catch up and decelerate the speed
-        time_deduction = C
-
-        follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
-        set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
-        for vehicle in self.temp_vehicle:
-            if set_follower_speed <= 40.0:
-                traci.vehicle.setSpeedMode(vehicle, 0)
-                traci.vehicle.setSpeed(vehicle, set_follower_speed)
-                # print("decelerate",vehicle,"speed to",set_follower_speed)
-                set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
-
-
-    def coordinate(self,threshold=30,C=-20,routeSelector=None):
+    def coordinate(self,chase):
         self.temp_vehicle.clear()
         self.onLaneVehicles.clear()
         index=0
@@ -148,23 +135,14 @@ class junction:
                     self.onLaneVehicles.append(vehicle)
         self.temp_time = traci.simulation.getTime()
         if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
-            # print(self.temp_vehicle,"case0")
             self.lead_time=traci.simulation.getTime()
-            self.decelerate(threshold,C)
             self.lead_vehicle=self.temp_vehicle[-1]
             return
 
-       
-        # calculate the predicted headway sk
-        
         time_interval = self.temp_time - self.lead_time
-        self.sk = self.ini_sk + time_interval
-        # if self.ID=="junction5":
-        #     print("leadvehicle:",self.lead_vehicle,"tempvehicles:",self.temp_vehicle,self.sk,self.ini_sk,self.temp_time,self.lead_time)
         if not traci.vehicle.getSpeed(self.lead_vehicle) or not (self.temp_vehicle[0]):
             return 
-        if self.sk < threshold:
-            
+        if chase==1:
             lead_vehicle_speed = traci.vehicle.getSpeed(self.lead_vehicle)
             lead_vehicle_speed_arrive_time = self.lead_time + d1 / lead_vehicle_speed
             
@@ -177,35 +155,13 @@ class junction:
             # limit the acceleration speed
             for vehicle in self.temp_vehicle:
                 if set_follower_speed <= 40.0:
-                    self.ini_sk = self.sk
-                
                     traci.vehicle.setSpeedMode(vehicle, 0)
                     traci.vehicle.setSpeed(vehicle, set_follower_speed)
-                    # print("accelerate",vehicle,"speed to",set_follower_speed,"sk:",self.sk)
                     set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
                     index+=1
-                    # print(self.temp_time,vehicle,"case1")
                 else:
                     break
-            
-            self.ini_sk = C
-            # not catch up and decelerate the speed
-            time_deduction = C
-
-            follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
-            set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
-            for i in range(index,len(self.temp_vehicle)):
-                self.temp_vehicle[i]
-                if set_follower_speed <= 40.0:
-                    traci.vehicle.setSpeedMode(self.temp_vehicle[i], 0)
-                    traci.vehicle.setSpeed(self.temp_vehicle[i], set_follower_speed)
-                    # print("decelerate",self.temp_vehicle[i],"speed to",set_follower_speed)
-                    set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
-                    # print(self.temp_time,self.temp_vehicle[i],"case2")
-                
-        else:
-            # print(self.temp_time,"case3")
-            self.decelerate(threshold,C)
+        
         self.lead_vehicle=self.temp_vehicle[-1]
         self.lead_time=self.temp_time
         
@@ -213,7 +169,7 @@ import numpy as np
 from gym import spaces
 class network:
     
-    def __init__(self,path,ui,sumocfgPath,steptime=300):
+    def __init__(self,path,ui,sumocfgPath,steptime=60):
         net=sumolib.net.readNet(path)
         self.junctions=[]
         self.lanes={}
@@ -231,7 +187,7 @@ class network:
         # highVals=np.array([1,1]*(len(self.junctions)))
         # self.action_space=spaces.Box(low=lowVals, high=highVals)
 
-        self.action_space=spaces.Discrete(100)
+        self.action_space=spaces.Discrete(2)
         self.steptime=steptime
         # self.observation_space=spaces.Box(np.array([0]*(3)),np.array([1]*(3)))
         self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-1)),np.array([1]*(len(self.lanes)-1)))
@@ -263,7 +219,7 @@ class network:
         print("action:",params)
         print("stepcost:",totalcost)
 
-        return observation, (150-totalcost)/100, done, {}
+        return observation, -totalcost, done, {}
         # return observation, (1800-totalcost)/1000, done, {}
     
     def render(self, mode='human', close=False):
@@ -330,12 +286,7 @@ class network:
             if self.junctions[i].ID=="junction0":
                 toUpdate=self.junctions[i].detectArrival()
                 if toUpdate:
-                    
-                    
-                    threshold=params//10*5
-                    C=-(params%10)*5
-                    routeselector=None
-                    self.junctions[i].coordinate(threshold,C)
+                    self.junctions[i].coordinate(params)
                     for lane in toUpdate:
                         if lane in self.lanes:
                             self.lanes[lane].updateFlow()
@@ -358,7 +309,7 @@ class network:
 
 # # choose whether to use GUI or not
 # netconvertBinary = checkBinary('netconvert')
-# sumoBinary = checkBinary('sumo')
+# sumoBinary = checkBinary('sumo-gui')
 
 
 # # begin the simulation
@@ -368,7 +319,7 @@ class network:
 
 # simpla.load("data/simpla.cfg.xml")
 # mgr=simpla._mgr
-# env=network("Nguyen-Dupuis/merge.net.xml","sumo","Nguyen-Dupuis/merge.sumocfg")
+# env=network("Nguyen-Dupuis/merge.net.xml","sumo-gui","Nguyen-Dupuis/merge.sumocfg")
 # # env=pyENV.network("ND/newND.net.xml","sumo","ND/test.sumocfg")
 # totalcost=0
 # totalfuel=0
@@ -376,7 +327,7 @@ class network:
 # for i in range(1500):
 #     traci.simulationStep()
 # for k in range(75000):
-#     env.action(47)
+#     env.action(1)
 #     data=env.getTotalCost()
 #     totalcost+=data[0]
 #     totalfuel+=data[1]

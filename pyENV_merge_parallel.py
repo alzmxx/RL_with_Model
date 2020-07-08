@@ -208,21 +208,10 @@ class junction:
             self.decelerate(threshold,C)
         self.lead_vehicle=self.temp_vehicle[-1]
         self.lead_time=self.temp_time
-        # fully functional routing junctions
-        if self.ID[4:] in ["1","12","4","5","6"]
-            if routeSelector:
-                for vehicle in self.temp_vehicle:
-                    traci.vehicle.setRoute(vehicle,[traci.vehicle.getRoadID(temp),self.outLanes[int(routeSelector//0.5)],vehicle[8:12]])
-        elif self.ID[4:] in ["7"]:
-            if routeSelector:
-                for vehicle in self.temp_vehicle:
-                    if vehicle[8:12]=="end1":
-                        traci.vehicle.setRoute(vehicle,[traci.vehicle.getRoadID(temp),self.outLanes[int(routeSelector//0.5)],"end1"])
-        elif self.ID[4:] in ["9"]:
-            if routeSelector:
-                for vehicle in self.temp_vehicle:
-                    if vehicle[8:12]=="end2":
-                        traci.vehicle.setRoute(vehicle,[traci.vehicle.getRoadID(temp),self.outLanes[int(routeSelector//0.5)],"end2"])
+        if routeSelector:
+            for vehicle in self.temp_vehicle:
+                traci.vehicle.setRoute(vehicle,[traci.vehicle.getRoadID(temp),vehicle[8:]])
+
 import numpy as np
 from gym import spaces
 class network:
@@ -233,6 +222,29 @@ class network:
         self.lanes={}
         self.ui=ui
         self.sumocfgPath=sumocfgPath
+        try:
+            sys.path.append(os.path.join(os.path.dirname(
+            __file__), '..', '..', '..', '..', "tools"))
+            sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
+            os.path.dirname(__file__), "..", "..", "..")), "tools")) 
+        except ImportError:
+            sys.exit("please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
+
+
+
+        # choose whether to use GUI or not
+        netconvertBinary = checkBinary('netconvert')
+        sumoBinary = checkBinary(ui)
+
+
+        # begin the simulation
+
+        # generate the final SUMO file, include net file and vehicle file
+        traci.start([sumoBinary, '-c', os.path.join(sumocfgPath)])
+        print("traci started")
+        simpla.load("data/simpla.cfg.xml")
+        mgr=simpla._mgr
+        
         for node in net.getNodes():
             # if "junction" in node.getID() and node.getID()[9:] not in ["10","12"]:
             if "junction" in node.getID() or "gneJ4" in node.getID():

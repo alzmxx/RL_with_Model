@@ -8,7 +8,7 @@ from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
-import pyENV_merge as pyENV
+import pyENV_merge_arbitrary as pyENV
 from datetime import datetime
 import keras
 import sumolib
@@ -40,9 +40,9 @@ traci.start([sumoBinary, '-c', os.path.join("Nguyen-Dupuis/merge.sumocfg")])
 
 simpla.load("data/simpla.cfg.xml")
 mgr=simpla._mgr
-env=pyENV.network("Nguyen-Dupuis/merge.net.xml","sumo","Nguyen-Dupuis/merge.sumocfg")
+# env=pyENV.network("Nguyen-Dupuis/merge.net.xml","sumo","Nguyen-Dupuis/merge.sumocfg")
 # env=pyENV.network("ND/newND.net.xml","sumo","ND/test.sumocfg")
-
+env=pyENV.network("Nguyen-Dupuis/merge.net.xml","sumo","Nguyen-Dupuis/merge.sumocfg")
 ENV_NAME = 'Merge'
 
 
@@ -87,8 +87,8 @@ tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
 dqn.fit(env, nb_steps=2500, nb_max_episode_steps=250, visualize=True, verbose=2,callbacks=[tensorboard_callback])
 
-# # After training is done, we save the final weights.
-dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
+# # # After training is done, we save the final weights.
+# dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
 
 # Finally, evaluate our algorithm for 5 episodes.
-# dqn.test(env, nb_episodes=1, nb_max_episode_steps=5,callbacks=[tensorboard_callback])
+# dqn.test(env, nb_episodes=1, nb_max_episode_steps=250,callbacks=[tensorboard_callback])

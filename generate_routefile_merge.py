@@ -4,7 +4,7 @@ import random
 def generate_routefile():
 
 	# define the parameters of the flow, 07:00 - 08:00; 08:00 - 09:00; 09:00 - 10:00. 
-	upper_branch_arrival_rate_list = [0.05, 0.05, 0.05]
+	upper_branch_arrival_rate_list = [0.127, 0.194, 0.167]
 	#lower_branch_arrival_rate_list = [0.127, 0.194, 0.167]
 
 	CAV_ratio = 0.2
@@ -38,10 +38,10 @@ def generate_routefile():
 		for i in range(num_veh):
 			if depart_time < 86400.0:
 
-				if depart_time < 3600.0:
+				if (depart_time//3600.0)%3==0:
 					arrival_rate = arrival_rate_list[0] * CAV_ratio
 				
-				elif depart_time < 7200.0:
+				elif (depart_time//3600.0)%3==1:
 					arrival_rate = arrival_rate_list[1] * CAV_ratio
 
 				else:
@@ -80,12 +80,12 @@ def generate_routefile():
 	# 		toLoc="end"+str(j)
 	# 		collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,800,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,2800,CAV_ratio)
 	fromLoc="start1"
 	toLoc="end1"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,800,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,2800,CAV_ratio)
 	fromLoc="start2"
 	toLoc="end1"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)

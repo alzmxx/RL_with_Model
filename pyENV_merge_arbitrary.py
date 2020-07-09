@@ -18,7 +18,13 @@ d1 = 1000.0			# the distance of d_1 (m)
 d2=30000
 collision_time_delay = 2
 gamma=0.9
-	
+
+
+alpha = 3.51 * 10 ** (-7)
+v = 24.0
+eta = 0.1
+k = 32.2 / 100000.0
+
 def distance(coord1,coord2):
     return (abs(coord1[0]-coord2[0])**2+abs(coord1[1]-coord2[1])**2)**0.5
 class lane:
@@ -28,20 +34,6 @@ class lane:
         self.lead_time=0
         self.flow=0
     
-    def updateSK(self):
-        # calculate the predicted headway sk
-        temp_time=traci.simulation.getTime()
-        time_interval = temp_time - self.lead_time
-        # calculate the estimated headway
-        if len(self.time_interval_list) > 30:
-            self.time_interval_list.pop(0)
-        self.time_interval_list.append(time_interval)
-
-    def getSK(self):
-        if len(self.time_interval_list)>=2:
-            return self.time_interval_list[-1]-self.time_interval_list[-2]
-        else:
-            return 0
     def reset(self):
         self.time_interval_list.clear()
         self.lead_time=0
@@ -81,6 +73,7 @@ class junction:
         # calculate the predicted headway sk
         temp_time=traci.simulation.getTime()
         time_interval = temp_time - self.lead_time
+
         return time_interval
         
         # self.coordinate_matrix=[None for i in range]
@@ -107,12 +100,11 @@ class junction:
 
 
     def detectArrival(self):
-        out=[]
         for lane in self.incLanes:
             if "link" in lane:
                 if traci.inductionloop.getLastStepVehicleIDs("e1Detector"+lane):
-                    out.append(lane)
-        return out
+                    return True
+        return False
 
     def restrictDrivingMode(self):
         for i in range(len(self.incLanes)):
@@ -134,6 +126,9 @@ class junction:
                 for vehicle in traci.edge.getLastStepVehicleIDs(lane):
                     self.onLaneVehicles.append(vehicle)
         self.temp_time = traci.simulation.getTime()
+        if not self.temp_vehicle:
+            self.lead_time=traci.simulation.getTime()
+            return
         if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
             self.lead_time=traci.simulation.getTime()
             self.lead_vehicle=self.temp_vehicle[-1]
@@ -175,6 +170,7 @@ class network:
         self.lanes={}
         self.ui=ui
         self.sumocfgPath=sumocfgPath
+        self.sk=0
         for node in net.getNodes():
             # if "junction" in node.getID() and node.getID()[9:] not in ["10","12"]:
             if "junction" in node.getID() or "gneJ4" in node.getID():
@@ -195,43 +191,135 @@ class network:
         # self.reset()
 
     def step(self,params):
-        totalcost=0
-        # print(params)
-        for i in range(self.steptime):
-            
-            self.action(params)
-            totalcost+=self.getTotalCost()[0]
+        
+        
+
+        curSK=self.sk
+        
+        # calculation method
+        if curSK > 40.0:
+            if params == 0:
+                action = 0.0
+                
+                return_reward = self.reward(action)[1]
+            else:
+                action = 0.0
+                return_reward = -500.0
+        else:
+            if params == 0:
+                action = 0.0
+                return_reward = self.reward(action)[1]
+            else:
+                action = curSK
+                return_reward = self.reward(action)[0]
+
+        print("observation: ",curSK)
+        print('action: ', action)
+        print(self.reward(action))
+        print('reward: ', return_reward)
+        if not action==curSK:
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    junction.coordinate(0)
+        else:
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    junction.coordinate(1)
 
         observation=self.get_observation()
-        # reward=(self.baseline-totalcost)/totalcost
-        # if traci.simulation.getTime()>8700:
-        # if totalcost>80000:
-        #     done=True
-        # else:
-        #     done=False
-        done=False
-        # print("params:")
-        # print(params)
-        # print("observations:")
-        # print(observation)
-        print()
-        print("observation:",observation)
-        print("action:",params)
-        print("stepcost:",totalcost)
+        if traci.simulation.getTime()<86000:
+            done=False
+        else:
+            done=True
 
-        return observation, -totalcost, done, {}
-        # return observation, (1800-totalcost)/1000, done, {}
+        # prepare for next step while get the next sk
+        # return_reward=0
+        arrival=False
+        while not arrival:
+            traci.simulationStep()
+            for vehicle in traci.vehicle.getIDList():
+                vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+                if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+                    traci.vehicle.setColor(vehicle,(0,255,0))
+                else:
+                    traci.vehicle.setColor(vehicle,(255,0,100))
+            for i in range(len(self.junctions)): 
+                self.junctions[i].restrictDrivingMode()
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    if junction.detectArrival():
+                        self.sk=junction.getSK()
+                        arrival=True
+                        break
+                # return_reward+=self.getTotalCost()
+        return observation, -return_reward, done, {}
+
+    # def step(self,params):
+        
+        
+    #     # simulation method
+    #     if self.sk > 40.0:
+    #         if params == 0:
+    #             for junction in self.junctions:
+    #                 if junction.ID=="junction0":
+    #                     junction.coordinate(0)
+    #     else:
+    #         if params == 0:
+    #             for junction in self.junctions:
+    #                 if junction.ID=="junction0":
+    #                     junction.coordinate(0)
+    #         else:
+    #             for junction in self.junctions:
+    #                 if junction.ID=="junction0":
+    #                     junction.coordinate(1)
+    #     print("observation: ",self.sk)
+        
+    #     observation=self.get_observation()
+    #     if traci.simulation.getTime()<86000:
+    #         done=False
+    #     else:
+    #         done=True
+
+    #     # prepare for next step while get the next sk
+    #     # return_reward=0
+    #     arrival=False
+    #     return_reward=0
+    #     for junction in self.junctions:
+    #         if junction.ID=="junction0":
+    #             curSK=junction.getSK()
+    #     while not arrival:
+    #         traci.simulationStep()
+    #         for vehicle in traci.vehicle.getIDList():
+    #             vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+    #             if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+    #                 traci.vehicle.setColor(vehicle,(0,255,0))
+    #             else:
+    #                 traci.vehicle.setColor(vehicle,(255,0,100))
+    #         for i in range(len(self.junctions)): 
+    #             self.junctions[i].restrictDrivingMode()
+    #         for junction in self.junctions:
+    #             if junction.ID=="junction0":
+    #                 if junction.detectArrival():
+    #                     self.sk=junction.getSK()-curSK
+    #                     arrival=True
+    #                     break
+    #             return_reward+=self.getTotalCost()[0]
+    #     print('reward: ', return_reward)
+    #     return observation, -return_reward, done, {}
     
     def render(self, mode='human', close=False):
         return
 
+    # def get_observation(self):
+    #     flows=[]
+    #     for lane in self.lanes:
+    #         if lane[4:] not in ["3"]:
+    #             flows.append(self.getFlow(lane)*20)
+    #     observation=np.array(flows)
+    #     return observation
+
     def get_observation(self):
-        flows=[]
-        for lane in self.lanes:
-            if lane[4:] not in ["3"]:
-                flows.append(self.getFlow(lane)*20)
-        observation=np.array(flows)
-        return observation
+        return self.sk
 
     def reset(self):
         traci.close()
@@ -241,17 +329,43 @@ class network:
         for junction in self.junctions:
             for lane in self.lanes:
                 self.lanes[lane].reset()
-        for i in range(1500):
+        for i in range(1200):
             traci.simulationStep()
+        arrival=False
+        while not arrival:
+            traci.simulationStep()
+            for vehicle in traci.vehicle.getIDList():
+                vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+                if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+                    traci.vehicle.setColor(vehicle,(0,255,0))
+                else:
+                    traci.vehicle.setColor(vehicle,(255,0,100))
             for i in range(len(self.junctions)): 
                 self.junctions[i].restrictDrivingMode()
-                if self.junctions[i].ID=="junction0":
-                    toUpdate=self.junctions[i].detectArrival()
-                    if toUpdate:
-                        for lane in toUpdate:
-                            if lane in self.lanes:
-                                self.lanes[lane].updateFlow()
-    
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    if junction.detectArrival():
+                        arrival=True
+                        self.sk=junction.getSK()
+                        junction.coordinate(0)
+                        break
+        arrival=False
+        while not arrival:
+            traci.simulationStep()
+            for vehicle in traci.vehicle.getIDList():
+                vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+                if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+                    traci.vehicle.setColor(vehicle,(0,255,0))
+                else:
+                    traci.vehicle.setColor(vehicle,(255,0,100))
+            for i in range(len(self.junctions)): 
+                self.junctions[i].restrictDrivingMode()
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    if junction.detectArrival():
+                        arrival=True
+                        self.sk=junction.getSK()
+                        break
         return self.get_observation()
 
     def close(self):
@@ -269,27 +383,37 @@ class network:
             total_time+=data[2]
         return total_cost,total_fuel,total_time
 
+
+    def reward(self, sk_action):
+        reward_catch_up = alpha * d1 * v**2 + eta * k * d2 - alpha * d1 * (d1 / (d1 / v - sk_action))**2
+        reward_catch_up = reward_catch_up * w_2 + sk_action * w_1
+
+        reward_not_catch_up = alpha * d1 * v**2 - alpha * d1 * (d1 / (d1 / v - sk_action))**2
+        reward_not_catch_up = reward_not_catch_up * w_2 + sk_action * w_1
+
+        return [reward_catch_up, reward_not_catch_up]
+
     
-    def action(self,params):
-        traci.simulationStep()
-        for vehicle in traci.vehicle.getIDList():
-            vehicle_item_type = traci.vehicle.getTypeID(vehicle)
-            if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
-                traci.vehicle.setColor(vehicle,(0,255,0))
-            else:
-                traci.vehicle.setColor(vehicle,(255,0,100))
-        for i in range(len(self.junctions)): 
+    # def action(self,params):
+    #     traci.simulationStep()
+    #     for vehicle in traci.vehicle.getIDList():
+    #         vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+    #         if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+    #             traci.vehicle.setColor(vehicle,(0,255,0))
+    #         else:
+    #             traci.vehicle.setColor(vehicle,(255,0,100))
+    #     for i in range(len(self.junctions)): 
             
             
-            # print(self.junctions[i].ID,":",threshold,C)
-            self.junctions[i].restrictDrivingMode()
-            if self.junctions[i].ID=="junction0":
-                toUpdate=self.junctions[i].detectArrival()
-                if toUpdate:
-                    self.junctions[i].coordinate(params)
-                    for lane in toUpdate:
-                        if lane in self.lanes:
-                            self.lanes[lane].updateFlow()
+    #         # print(self.junctions[i].ID,":",threshold,C)
+    #         self.junctions[i].restrictDrivingMode()
+    #         if self.junctions[i].ID=="junction0":
+    #             toUpdate=self.junctions[i].detectArrival()
+    #             if toUpdate:
+    #                 self.junctions[i].coordinate(params)
+    #                 for lane in toUpdate:
+    #                     if lane in self.lanes:
+    #                         self.lanes[lane].updateFlow()
     
     def getFlow(self,lane):
         return self.lanes[lane].flow
@@ -297,40 +421,39 @@ class network:
 
 
     
-# try:
-#     sys.path.append(os.path.join(os.path.dirname(
-#     __file__), '..', '..', '..', '..', "tools"))
-#     sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
-#     os.path.dirname(__file__), "..", "..", "..")), "tools")) 
-# except ImportError:
-#     sys.exit("please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
+try:
+    sys.path.append(os.path.join(os.path.dirname(
+    __file__), '..', '..', '..', '..', "tools"))
+    sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
+    os.path.dirname(__file__), "..", "..", "..")), "tools")) 
+except ImportError:
+    sys.exit("please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
 
 
 
-# # choose whether to use GUI or not
-# netconvertBinary = checkBinary('netconvert')
-# sumoBinary = checkBinary('sumo-gui')
+# choose whether to use GUI or not
+netconvertBinary = checkBinary('netconvert')
+sumoBinary = checkBinary('sumo-gui')
 
 
-# # begin the simulation
+# begin the simulation
 
-# # generate the final SUMO file, include net file and vehicle file
-# traci.start([sumoBinary, '-c', os.path.join("Nguyen-Dupuis/merge.sumocfg")])
+# generate the final SUMO file, include net file and vehicle file
+traci.start([sumoBinary, '-c', os.path.join("Nguyen-Dupuis/merge.sumocfg")])
 
-# simpla.load("data/simpla.cfg.xml")
-# mgr=simpla._mgr
-# env=network("Nguyen-Dupuis/merge.net.xml","sumo-gui","Nguyen-Dupuis/merge.sumocfg")
-# # env=pyENV.network("ND/newND.net.xml","sumo","ND/test.sumocfg")
-# totalcost=0
-# totalfuel=0
-# totaltime=0
-# for i in range(1500):
-#     traci.simulationStep()
-# for k in range(75000):
-#     env.action(1)
-#     data=env.getTotalCost()
-#     totalcost+=data[0]
-#     totalfuel+=data[1]
-#     totaltime+=data[2]
-# traci.close()
-# print(totalcost,totalfuel,totaltime)
+simpla.load("data/simpla.cfg.xml")
+mgr=simpla._mgr
+env=network("Nguyen-Dupuis/merge.net.xml","sumo-gui","Nguyen-Dupuis/merge.sumocfg")
+# env=pyENV.network("ND/newND.net.xml","sumo","ND/test.sumocfg")
+totalcost=0
+totalfuel=0
+totaltime=0
+env.reset()
+for k in range(75000):
+    env.step(1)
+    data=env.getTotalCost()
+    totalcost+=data[0]
+    totalfuel+=data[1]
+    totaltime+=data[2]
+traci.close()
+print(totalcost,totalfuel,totaltime)

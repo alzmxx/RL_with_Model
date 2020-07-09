@@ -133,10 +133,10 @@ class junction:
                 # print("decelerate",vehicle,"speed to",set_follower_speed)
                 set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
 
-
-    def coordinate(self,threshold=30,C=-20,link=None):
+    def coordinate(self,threshold=30,C=-20,routeSelector=None):
         self.temp_vehicle.clear()
         self.onLaneVehicles.clear()
+        
         index=0
         for lane in self.incLanes:
             if (not "end" in lane) and (not "start" in lane):
@@ -144,6 +144,7 @@ class junction:
                     self.temp_vehicle.append(vehicle)
                 for vehicle in traci.edge.getLastStepVehicleIDs(lane):
                     self.onLaneVehicles.append(vehicle)
+        
         self.temp_time = traci.simulation.getTime()
         if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
             # print(self.temp_vehicle,"case0")
@@ -152,7 +153,30 @@ class junction:
             self.lead_vehicle=self.temp_vehicle[-1]
             return
 
-       
+        
+        # print("routeselector:",routeSelector)
+        if routeSelector!=None:
+            print(routeSelector)
+            routeSelector=(int(routeSelector//(1/len(self.outLanes))))%len(self.outLanes)
+            if self.ID[8:] in ["5","6","7"]:
+                for vehicle in self.temp_vehicle:
+                    print(routeSelector,vehicle)
+                    traci.vehicle.setVia(vehicle,[self.outLanes[routeSelector]])
+                    traci.vehicle.rerouteEffort(vehicle)
+            elif self.ID[8:] =="9":
+                for vehicle in self.temp_vehicle:
+                    if vehicle[8:12]=="end2":
+                        traci.vehicle.setVia(vehicle,[self.outLanes[routeSelector]])
+                        traci.vehicle.rerouteEffort(vehicle)
+
+                    # if routeSelector==1:
+                    #     print("setting6")
+                    #     traci.vehicle.setVia(vehicle,[self.outLanes[0]])
+                    #     traci.vehicle.rerouteEffort(vehicle)
+                    # else:
+                    #     print("setting5")
+                    #     traci.vehicle.setVia(vehicle,["link5"])
+                    #     traci.vehicle.rerouteEffort(vehicle)
         # calculate the predicted headway sk
         
         time_interval = self.temp_time - self.lead_time
@@ -206,8 +230,7 @@ class junction:
             self.decelerate(threshold,C)
         self.lead_vehicle=self.temp_vehicle[-1]
         self.lead_time=self.temp_time
-        if link and self.lead_vehicle:
-            traci.vehicle.setVia(self.lead_vehicle,[link])
+        
     # def coordinate(self,speed):
     #     self.temp_vehicle.clear()
     #     self.onLaneVehicles.clear()
@@ -340,15 +363,18 @@ class network:
         # threshold=params[0]*50
         # C=params[1]*50
         for i in range(len(self.junctions)): 
-            threshold=params[2*i]*50
-            C=params[2*i+1]*50*(-1)
+            threshold=params[2*i]
+            C=params[2*i+1]
+            
             # print(self.junctions[i].ID,":",threshold,C)
             self.junctions[i].restrictDrivingMode()
             toUpdate=self.junctions[i].detectArrival()
             if toUpdate:
-                self.junctions[i].coordinate(threshold,C)
+                routeSelector=np.random.random()
+                self.junctions[i].coordinate(threshold,C,routeSelector)
                 for lane in toUpdate:
                     self.lanes[lane].updateFlow()
+            
     # def action(self,params):
     #     traci.simulationStep()
     #     for vehicle in traci.vehicle.getIDList():
@@ -416,53 +442,53 @@ class network:
     
 #     return newnet
 # env = make("sumo-gui",'C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/singleJunction.sumocfg',"C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/singleJunction.net.xml")
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-# 	# find SUMO path and start the sumo program
-#     try:
-#         sys.path.append(os.path.join(os.path.dirname(
-#         __file__), '..', '..', '..', '..', "tools"))
-#         sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
-#         os.path.dirname(__file__), "..", "..", "..")), "tools")) 
-#         from sumolib import checkBinary
-#     except ImportError:
-#         sys.exit("please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
-
-
-
-#     # choose whether to use GUI or not
-#     netconvertBinary = checkBinary('netconvert')
-#     sumoBinary = checkBinary('sumo')
+	# find SUMO path and start the sumo program
+    try:
+        sys.path.append(os.path.join(os.path.dirname(
+        __file__), '..', '..', '..', '..', "tools"))
+        sys.path.append(os.path.join(os.environ.get("SUMO_HOME", os.path.join(
+        os.path.dirname(__file__), "..", "..", "..")), "tools")) 
+        from sumolib import checkBinary
+    except ImportError:
+        sys.exit("please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
 
 
-#     # begin the simulation
 
-#     #print('Current threshold: ', threshold)
+    # choose whether to use GUI or not
+    netconvertBinary = checkBinary('netconvert')
+    sumoBinary = checkBinary('sumo-gui')
 
-#     # choose random seed values
-#     #seed=random.randint(2,23423)
-#     seed = 16042
-#     #gs.random_experiment(seed)
+
+    # begin the simulation
+
+    #print('Current threshold: ', threshold)
+
+    # choose random seed values
+    #seed=random.randint(2,23423)
+    seed = 16042
+    #gs.random_experiment(seed)
 
                         
-#     # generate the vehicle departure time and departure lane
-#     #platoon_index = gr.generate_routefile()
+    # generate the vehicle departure time and departure lane
+    #platoon_index = gr.generate_routefile()
 
-#     # generate the final SUMO file, include net file and vehicle file
-#     traci.start([sumoBinary, '-c', os.path.join('data', 'C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/Nguyen.sumocfg')])
+    # generate the final SUMO file, include net file and vehicle file
+    traci.start([sumoBinary, '-c', os.path.join('data', 'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/Nguyen.sumocfg')])
 
-#     simpla.load("data/simpla.cfg.xml")
-#     mgr=simpla._mgr
-#     newnet=network("C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/newND.net.xml","sumo-gui",'C:/Users/Francmeister/Desktop/RL_With_SUMO/Nguyen-Dupuis/Nguyen.sumocfg')
-#     totalcost=0
-#     totalfuel=0
-#     totaltime=0
-#     for k in range(3600):
-#         # print(newnet.action())
-#         newnet.action([50,-40]*len(newnet.junctions))
-#         data=newnet.getTotalCost()
-#         totalcost+=data[0]
-#         totalfuel+=data[1]
-#         totaltime+=data[2]
-#     traci.close()
-#     print(totalcost,totalfuel,totaltime)
+    simpla.load("data/simpla.cfg.xml")
+    mgr=simpla._mgr
+    newnet=network("C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/newND.net.xml","sumo-gui",'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/Nguyen.sumocfg')
+    totalcost=0
+    totalfuel=0
+    totaltime=0
+    for k in range(3600):
+        # print(newnet.action())
+        newnet.action([50,-40]*len(newnet.junctions))
+        data=newnet.getTotalCost()
+        totalcost+=data[0]
+        totalfuel+=data[1]
+        totaltime+=data[2]
+    traci.close()
+    print(totalcost,totalfuel,totaltime)

@@ -73,8 +73,10 @@ class junction:
         # calculate the predicted headway sk
         temp_time=traci.simulation.getTime()
         time_interval = temp_time - self.lead_time
+
         return time_interval
         
+        # self.coordinate_matrix=[None for i in range]
     def getTotalCost(self):
         all_vehicle_list = []
         for lane in self.incLanes:
@@ -125,14 +127,14 @@ class junction:
                     self.onLaneVehicles.append(vehicle)
         self.temp_time = traci.simulation.getTime()
         if not self.temp_vehicle:
-            # self.lead_time=traci.simulation.getTime()
+            self.lead_time=traci.simulation.getTime()
             return
         if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
             self.lead_time=traci.simulation.getTime()
             self.lead_vehicle=self.temp_vehicle[-1]
             return
 
-        # time_interval = self.temp_time - self.lead_time
+        time_interval = self.temp_time - self.lead_time
         if not traci.vehicle.getSpeed(self.lead_vehicle) or not (self.temp_vehicle[0]):
             return 
         if chase==1:
@@ -168,104 +170,62 @@ class network:
         self.lanes={}
         self.ui=ui
         self.sumocfgPath=sumocfgPath
-        
+        self.sk=0
         for node in net.getNodes():
             # if "junction" in node.getID() and node.getID()[9:] not in ["10","12"]:
-            if "junction" in node.getID():
+            if "junction" in node.getID() or "gneJ4" in node.getID():
                 self.junctions.append(junction(node.getID(),node.getIncoming(),node.getOutgoing(),node.getCoord()))
-        self.sk=[0]*len(self.junctions)
         for edge in net.getEdges():
             # if "link" in edge.getID() and edge.getID()[4:] in ["1","3","5"]:
             if "link" in edge.getID():
                 self.lanes[edge.getID()]=lane(edge.getID())
+        # lowVals=np.array([0,0]*(len(self.junctions)))
+        # highVals=np.array([1,1]*(len(self.junctions)))
+        # self.action_space=spaces.Box(low=lowVals, high=highVals)
 
         self.action_space=spaces.Discrete(2)
         self.steptime=steptime
+        # self.observation_space=spaces.Box(np.array([0]*(3)),np.array([1]*(3)))
         self.observation_space=spaces.Box(np.array([0]*(len(self.lanes)-1)),np.array([1]*(len(self.lanes)-1)))
-    
-    # def step(self,params):
-        
-        
-    #     for i in range(len(self.junctions)):
-    #         curSK=self.sk[i]
-            
-    #         # calculation method
-    #         if curSK > 40.0:
-    #             if params == 0:
-    #                 action = 0.0
-    #                 return_reward = self.reward(action)[1]
-    #             else:
-    #                 action = 0.0
-    #                 return_reward = -500.0
-    #         else:
-    #             if params == 0:
-    #                 action = 0.0
-    #                 return_reward = self.reward(action)[1]
-    #             else:
-    #                 action = curSK
-    #                 return_reward = self.reward(action)[0]
-
-    #         print("observation: ",curSK)
-    #         print('action: ', action)
-    #         print(self.reward(action))
-    #         print('reward: ', return_reward)
-    #         if not action==curSK:
-    #             for junction in self.junctions:
-    #                 if junction.ID=="junction0":
-    #                     junction.coordinate(0)
-    #         else:
-    #             for junction in self.junctions:
-    #                 if junction.ID=="junction0":
-    #                     junction.coordinate(1)
-
-    #     observation=self.get_observation()
-    #     if traci.simulation.getTime()<86000:
-    #         done=False
-    #     else:
-    #         done=True
-
-    #     # prepare for next step while get the next sk
-    #     # return_reward=0
-    #     arrival=False
-    #     while not arrival:
-    #         traci.simulationStep()
-    #         for vehicle in traci.vehicle.getIDList():
-    #             vehicle_item_type = traci.vehicle.getTypeID(vehicle)
-    #             if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
-    #                 traci.vehicle.setColor(vehicle,(0,255,0))
-    #             else:
-    #                 traci.vehicle.setColor(vehicle,(255,0,100))
-    #         for i in range(len(self.junctions)): 
-    #             self.junctions[i].restrictDrivingMode()
-    #         for i in range(len(self.junctions)):
-    #             if junction.ID=="junction0":
-    #                 if junction.detectArrival():
-    #                     self.sk=junction.getSK()
-    #                     arrival=True
-    #                     break
-    #             # return_reward+=self.getTotalCost()
-    #     return observation, -return_reward, done, {}
+        # self.baseline=self.getBaseline()
+        # self.reset()
 
     def step(self,params):
         
         
-        # simulation method
-        if self.sk > 40.0:
+
+        curSK=self.sk
+        
+        # calculation method
+        if curSK > 40.0:
             if params == 0:
-                for junction in self.junctions:
-                    if junction.ID=="junction0":
-                        junction.coordinate(0)
+                action = 0.0
+                
+                return_reward = self.reward(action)[1]
+            else:
+                action = 0.0
+                return_reward = -500.0
         else:
             if params == 0:
-                for junction in self.junctions:
-                    if junction.ID=="junction0":
-                        junction.coordinate(0)
+                action = 0.0
+                return_reward = self.reward(action)[1]
             else:
-                for junction in self.junctions:
-                    if junction.ID=="junction0":
-                        junction.coordinate(1)
-        print("observation: ",self.sk)
-        
+                action = curSK
+                return_reward = self.reward(action)[0]
+
+        print("observation: ",curSK)
+        print('action: ', action)
+        print(self.reward(action))
+        print('reward: ', return_reward)
+        if not action==curSK:
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    junction.coordinate(0)
+        else:
+            for junction in self.junctions:
+                if junction.ID=="junction0":
+                    junction.coordinate(1)
+
         observation=self.get_observation()
         if traci.simulation.getTime()<86000:
             done=False
@@ -275,10 +235,6 @@ class network:
         # prepare for next step while get the next sk
         # return_reward=0
         arrival=False
-        return_reward=0
-        for junction in self.junctions:
-            if junction.ID=="junction0":
-                curSK=junction.getSK()
         while not arrival:
             traci.simulationStep()
             for vehicle in traci.vehicle.getIDList():
@@ -292,15 +248,75 @@ class network:
             for junction in self.junctions:
                 if junction.ID=="junction0":
                     if junction.detectArrival():
-                        self.sk=junction.getSK()-curSK
+                        self.sk=junction.getSK()
                         arrival=True
                         break
-                return_reward+=self.getTotalCost()[0]
-        print('reward: ', return_reward)
+                # return_reward+=self.getTotalCost()
         return observation, -return_reward, done, {}
+
+    # def step(self,params):
+        
+        
+    #     # simulation method
+    #     if self.sk > 40.0:
+    #         if params == 0:
+    #             for junction in self.junctions:
+    #                 if junction.ID=="junction0":
+    #                     junction.coordinate(0)
+    #     else:
+    #         if params == 0:
+    #             for junction in self.junctions:
+    #                 if junction.ID=="junction0":
+    #                     junction.coordinate(0)
+    #         else:
+    #             for junction in self.junctions:
+    #                 if junction.ID=="junction0":
+    #                     junction.coordinate(1)
+    #     print("observation: ",self.sk)
+        
+    #     observation=self.get_observation()
+    #     if traci.simulation.getTime()<86000:
+    #         done=False
+    #     else:
+    #         done=True
+
+    #     # prepare for next step while get the next sk
+    #     # return_reward=0
+    #     arrival=False
+    #     return_reward=0
+    #     for junction in self.junctions:
+    #         if junction.ID=="junction0":
+    #             curSK=junction.getSK()
+    #     while not arrival:
+    #         traci.simulationStep()
+    #         for vehicle in traci.vehicle.getIDList():
+    #             vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+    #             if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+    #                 traci.vehicle.setColor(vehicle,(0,255,0))
+    #             else:
+    #                 traci.vehicle.setColor(vehicle,(255,0,100))
+    #         for i in range(len(self.junctions)): 
+    #             self.junctions[i].restrictDrivingMode()
+    #         for junction in self.junctions:
+    #             if junction.ID=="junction0":
+    #                 if junction.detectArrival():
+    #                     self.sk=junction.getSK()-curSK
+    #                     arrival=True
+    #                     break
+    #             return_reward+=self.getTotalCost()[0]
+    #     print('reward: ', return_reward)
+    #     return observation, -return_reward, done, {}
     
     def render(self, mode='human', close=False):
         return
+
+    # def get_observation(self):
+    #     flows=[]
+    #     for lane in self.lanes:
+    #         if lane[4:] not in ["3"]:
+    #             flows.append(self.getFlow(lane)*20)
+    #     observation=np.array(flows)
+    #     return observation
 
     def get_observation(self):
         return self.sk
@@ -374,7 +390,7 @@ class network:
 
         reward_not_catch_up = alpha * d1 * v**2 - alpha * d1 * (d1 / (d1 / v - sk_action))**2
         reward_not_catch_up = reward_not_catch_up * w_2 + sk_action * w_1
-        print("insideReward",[reward_catch_up, reward_not_catch_up])
+
         return [reward_catch_up, reward_not_catch_up]
 
     
@@ -432,6 +448,7 @@ env=network("Nguyen-Dupuis/merge.net.xml","sumo-gui","Nguyen-Dupuis/merge.sumocf
 totalcost=0
 totalfuel=0
 totaltime=0
+env.reset()
 for k in range(75000):
     env.step(1)
     data=env.getTotalCost()

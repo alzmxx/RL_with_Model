@@ -235,7 +235,6 @@ class network:
         self.steptime=steptime
         self.observation_space=spaces.Box(np.array([0]*len(self.lanes)),np.array([1]*len(self.lanes)))
         # self.baseline=self.getBaseline()
-        self.reset()
 
     def step(self,params):
         totalcost=0
@@ -394,7 +393,7 @@ if __name__ == "__main__":
     totaltime=0
     print(totalcost,totalfuel,totaltime)
 
-    for k in range(6000):
+    for k in range(15000):
         # print(newnet.action())
         # newnet.action([50,-40]*len(newnet.junctions))
         newnet.noParamRun()

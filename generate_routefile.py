@@ -4,7 +4,7 @@ import random
 def generate_routefile():
 
 	# define the parameters of the flow, 07:00 - 08:00; 08:00 - 09:00; 09:00 - 10:00. 
-	upper_branch_arrival_rate_list = [0.05, 0.08, 0.06]
+	upper_branch_arrival_rate_list = [0.06, 0.06, 0.06]
 	#lower_branch_arrival_rate_list = [0.127, 0.194, 0.167]
 
 	CAV_ratio = 0.2
@@ -110,7 +110,7 @@ def generate_routefile():
 	print("</routes>", file=routes)
 	routes.close()
 
-
+generate_routefile()
 	# write the file of the detecors
 	# with open("data/detector.xml", "w") as detector:
 

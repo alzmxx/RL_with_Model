@@ -118,65 +118,7 @@ class junction:
                     traci.vehicle.setSpeed(item, 24.0)
 
 
-    def coordinate(self,params):
-        chase=params%2
-        routeSelector=int(params//2)
-        self.temp_vehicle.clear()
-        self.onLaneVehicles.clear()
-        index=0
-        for lane in self.incLanes:
-            if (not "end" in lane) and (not "start" in lane):
-                for vehicle in traci.inductionloop.getLastStepVehicleIDs("e1Detector"+lane):
-                    self.temp_vehicle.append(vehicle)
-                for vehicle in traci.edge.getLastStepVehicleIDs(lane):
-                    self.onLaneVehicles.append(vehicle)
-        self.temp_time = traci.simulation.getTime()
-        if not self.temp_vehicle:
-            # self.lead_time=traci.simulation.getTime()
-            return
-        if params>=2:
-            print(routeSelector)
-            # routeSelector=(int(routeSelector//(1/len(self.outLanes))))%len(self.outLanes)
-            if self.ID[8:] in ["5","6","7"]:
-                for vehicle in self.temp_vehicle:
-                    print(routeSelector,vehicle,self.outLanes[routeSelector])
-                    traci.vehicle.setVia(vehicle,[self.outLanes[routeSelector]])
-                    traci.vehicle.rerouteEffort(vehicle)
-            elif self.ID[8:] =="9":
-                for vehicle in self.temp_vehicle:
-                    if vehicle[8:12]=="end2":
-                        traci.vehicle.setVia(vehicle,[self.outLanes[routeSelector]])
-                        traci.vehicle.rerouteEffort(vehicle)
-        if self.lead_vehicle==None or self.lead_vehicle not in self.onLaneVehicles:
-            self.lead_time=traci.simulation.getTime()
-            self.lead_vehicle=self.temp_vehicle[-1]
-            return
-
-        # time_interval = self.temp_time - self.lead_time
-        if not traci.vehicle.getSpeed(self.lead_vehicle) or not (self.temp_vehicle[0]):
-            return 
-        if chase==1:
-            lead_vehicle_speed = traci.vehicle.getSpeed(self.lead_vehicle)
-            lead_vehicle_speed_arrive_time = self.lead_time + d1 / lead_vehicle_speed
-            
-            follower_vehicle_speed = traci.vehicle.getSpeed(self.temp_vehicle[0])
-            follower_vehicle_assumed_arrive_time = self.temp_time + d1 / follower_vehicle_speed
-
-            time_deduction = follower_vehicle_assumed_arrive_time - lead_vehicle_speed_arrive_time - collision_time_delay
-            set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
-
-            # limit the acceleration speed
-            for vehicle in self.temp_vehicle:
-                if set_follower_speed <= 40.0:
-                    traci.vehicle.setSpeedMode(vehicle, 0)
-                    traci.vehicle.setSpeed(vehicle, set_follower_speed)
-                    set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
-                    index+=1
-                else:
-                    break
-        
-        self.lead_vehicle=self.temp_vehicle[-1]
-        self.lead_time=self.temp_time
+    
     def baselineNoCoordinate(self,shortestPaths):
         self.temp_vehicle.clear()
         self.onLaneVehicles.clear()
@@ -221,16 +163,8 @@ class junction:
             self.lead_time=traci.simulation.getTime()
             self.lead_vehicle=self.temp_vehicle[-1]
             for vehicle in self.temp_vehicle:
-                if vehicle[5]=="1":
-                    start="junction1"
-                else:
-                    start="junction4"
-                if vehicle[11]=="1":
-                    end="junction2"
-                else:
-                    end="junction3"
-                self.totalcost+=shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
-                self.basecost+=shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+                self.totalcost+=traci.lane.getLength(self.ID)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+                self.basecost+=traci.lane.getLength(self.ID)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
             return
         
         lead_vehicle_speed = traci.vehicle.getSpeed(self.lead_vehicle)
@@ -241,26 +175,38 @@ class junction:
 
         time_deduction = follower_vehicle_assumed_arrive_time - lead_vehicle_speed_arrive_time - collision_time_delay
         set_follower_speed = d1 / (d1 / follower_vehicle_speed - time_deduction)
-
-        if self.lead_vehicle[11]==1:
-            leadend="junction2"
+        if self.lead_vehicle in inPlatoonUntil:
+            leadend=inPlatoonUntil[self.lead_vehicle]
         else:
-            leadend="junction3"
+            if self.lead_vehicle[11]==1:
+                leadend="junction2"
+            else:
+                leadend="junction3"
         for vehicle in self.temp_vehicle:
-            if vehicle[5]=="1":
-                    start="junction1"
-            else:
-                start="junction4"
-            if vehicle[11]=="1":
-                end="junction2"
-            else:
-                end="junction3"
-            self.basecost+=shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
             start=self.ID
-            # if vehicle[11]=="1":
-            #     end="junction2"
-            # else:
-            #     end="junction3"
+            self.basecost+=traci.lane.getLength(self.ID)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+            if vehicle in inPlatoonUntil:
+                if inPlatoonUntil[vehicle]!=self.ID:
+                    end=inPlatoonUntil[vehicle]
+                    if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+                        self.totalcost+=traci.lane.getLength(self.ID)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*0.9
+                    else:
+                        self.totalcost+=traci.lane.getLength(self.ID)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+                    continue
+                else:
+                    inPlatoonUntil.pop(vehicle)
+        
+                    if vehicle[11]=="1":
+                        end="junction2"
+                    else:
+                        end="junction3"
+            else:
+                if vehicle[11]=="1":
+                    end="junction2"
+                else:
+                    end="junction3"
+            
+            
             print(vehicle,"originally spend",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle)))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000))
             #cost already spent before detector
             
@@ -277,8 +223,10 @@ class junction:
                 bestJunction=start
                 splitEdge=traci.vehicle.getLaneID(vehicle)
                 if end==leadend:
-                    self.totalcost+=chasingCost+shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*.9
-                    print(vehicle,"will follow the previous car down the same track",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle))-1100)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+chasingCost+shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*.9)
+                    self.totalcost+=chasingCost
+                    print(vehicle,"will follow the previous car down the same track",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle))-1000)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+chasingCost)
+                    inPlatoonUntil[vehicle]=end
+                    inPlatoonUntil[self.vehicle]=end
                     traci.vehicle.setSpeedMode(vehicle, 0)
                     traci.vehicle.setSpeed(vehicle, set_follower_speed)
                     set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
@@ -298,13 +246,14 @@ class junction:
                     traci.vehicle.setSpeed(vehicle, set_follower_speed)
                     traci.vehicle.setVia(vehicle,[splitEdge])
                     traci.vehicle.rerouteEffort(vehicle)
-                    self.totalcost+=chasingCost+shortestPaths[(start,bestJunction)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*0.9+shortestPaths[(bestJunction,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
-                    print(vehicle,"will be in platoon until",bestJunction,"would spend",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle))-1100)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+chasingCost+shortestPaths[(start,bestJunction)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*0.9+shortestPaths[(bestJunction,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000),"by going",shortestPaths[(start,bestJunction)][0]+shortestPaths[(bestJunction,end)][0],"splitting at",splitEdge)
+                    inPlatoonUntil[vehicle]=bestJunction
+                    self.totalcost+=chasingCost
+                    print(vehicle,"will be in platoon until",bestJunction,"would spend",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle))-1000)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+chasingCost+shortestPaths[(start,bestJunction)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*0.9+shortestPaths[(bestJunction,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000),"by going",shortestPaths[(start,bestJunction)][0]+shortestPaths[(bestJunction,end)][0],"splitting at",splitEdge)
                     set_follower_speed=d1 / (d1 / set_follower_speed - collision_time_delay)
                 else:
-                    self.totalcost+=1100/24*(w_1+(3.51 * (10 ** (-4)) * (24 ** 3) + 0.407 * 24)*w_2/1000)
+                    self.totalcost+=1000/24*(w_1+(3.51 * (10 ** (-4)) * (24 ** 3) + 0.407 * 24)*w_2/1000)
                     self.totalcost+=shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
-                    print(vehicle,"will not in platoon and would spend",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle))-1100)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+1100/24*(w_1+(3.51 * (10 ** (-4)) * (24 ** 3) + 0.407 * 24)*w_2/1000)+shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000))
+                    print(vehicle,"will not in platoon and would spend",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle))-1000)/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+1100/24*(w_1+(3.51 * (10 ** (-4)) * (24 ** 3) + 0.407 * 24)*w_2/1000)+shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000))
                 index+=1
                 
             else:
@@ -415,7 +364,7 @@ class network:
         return_reward=0
         for i in range(len(self.junctions)):
             self.junctions[i].restrictDrivingMode()
-            if self.junctions[i].detectArrival() and self.junctions[i].ID[8] in ["5","9"]:
+            if self.junctions[i].detectArrival():
                 self.junctions[i].baselineCoordinate(self.shortestDist,self.junctionids)
                 # self.junctions[i].baselineNoCoordinate(self.shortestDist)
         
@@ -498,6 +447,7 @@ if __name__ == "__main__":
     print(newnet.shortestDist)
     for i in range(len(newnet.junctions)):
         print(i,newnet.junctions[i].ID)
+    inPlatoonUntil={}
     for k in range(12000):
         # print(newnet.action())
         newnet.baselineStep()
@@ -506,9 +456,8 @@ if __name__ == "__main__":
     basecost=0
     for junction in newnet.junctions:
         print(junction.ID,junction.totalcost)
-        if junction.ID[8] in ["5","9"]:
-            cost+=junction.totalcost
-            basecost+=junction.basecost
+        cost+=junction.totalcost
+        basecost+=junction.basecost
     print(cost)
     print(basecost)
         

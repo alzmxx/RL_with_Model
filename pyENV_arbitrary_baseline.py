@@ -12,8 +12,8 @@ import theta_calculation as tc
 import queue
 import generate_routefile as gr
 import heapq
-w_1 = 25.8 / 3600  # value of time ($/hour)
-w_2 = 0.868			# oil price ($/L)
+w_1 = 0  # value of time ($/hour)
+w_2 = 1			# oil price ($/L)
 d1 = 1000.0			# the distance of d_1 (m)
 collision_time_delay = 2
 gamma=0.9

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 08/05/20 14:24:50 by Eclipse SUMO netedit Version 1.5.0
+<!-- generated on 08/05/20 16:42:34 by Eclipse SUMO netedit Version 1.5.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
 
     <input>
-        <sumo-net-file value="C:\Users\Francmeister\Desktop\rl_with_model_2\Nguyen-Dupuis\siouxFalls.net.xml"/>
+        <sumo-net-file value="C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/siouxFalls.net.xml"/>
     </input>
 
     <output>
-        <output-file value="C:\Users\Francmeister\Desktop\rl_with_model_2\Nguyen-Dupuis\siouxFalls.net.xml"/>
+        <output-file value="C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/siouxFalls.net.xml"/>
     </output>
 
     <processing>

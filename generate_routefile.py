@@ -4,7 +4,7 @@ import random
 def generate_routefile():
 
 	# define the parameters of the flow, 07:00 - 08:00; 08:00 - 09:00; 09:00 - 10:00. 
-	upper_branch_arrival_rate_list = [0.06, 0.06, 0.06]
+	upper_branch_arrival_rate_list = [0.12, 0.06, 0.06]
 	#lower_branch_arrival_rate_list = [0.127, 0.194, 0.167]
 
 	CAV_ratio = 0.2
@@ -82,22 +82,22 @@ def generate_routefile():
 	# 		toLoc="end"+str(j)
 	# 		collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,200,CAV_ratio)
 	fromLoc="start1"
 	toLoc="end1"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,200,CAV_ratio)
 	fromLoc="start2"
 	toLoc="end1"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,200,CAV_ratio)
 	fromLoc="start1"
 	toLoc="end2"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,200,CAV_ratio)
 	fromLoc="start2"
 	toLoc="end2"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)

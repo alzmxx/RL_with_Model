@@ -12,8 +12,8 @@ import theta_calculation as tc
 import queue
 import generate_routefile as gr
 import heapq
-w_1 = 25.8 / 3600  # value of time ($/hour)
-w_2 = 0.868			# oil price ($/L)
+w_1 = 0  # value of time ($/hour)
+w_2 = 1		# oil price ($/L)
 d1 = 1000.0			# the distance of d_1 (m)
 collision_time_delay = 2
 gamma=0.9
@@ -112,38 +112,12 @@ class junction:
     def restrictDrivingMode(self):
         for i in range(len(self.incLanes)):
             for item in traci.edge.getLastStepVehicleIDs(self.incLanes[i]):
+                # if self.ID=="junction5":
+                #     print(self.nodePos,traci.vehicle.getPosition(item),distance(self.nodePos,self.incLanesOBJ[i].getFromNode().getCoord()))
                 if distance(self.nodePos,traci.vehicle.getPosition(item))/distance(self.nodePos,self.incLanesOBJ[i].getFromNode().getCoord()) > 1050/(self.incLanesOBJ[i].getLength()):
                     
                     traci.vehicle.setSpeedMode(item,1)
                     traci.vehicle.setSpeed(item, 24.0)
-
-
-    
-    def baselineNoCoordinate(self,shortestPaths):
-        self.temp_vehicle.clear()
-        self.onLaneVehicles.clear()
-        index=0
-        for lane in self.incLanes:
-            if (not "end" in lane) and (not "start" in lane):
-                for vehicle in traci.inductionloop.getLastStepVehicleIDs("e1Detector"+lane):
-                    self.temp_vehicle.append(vehicle)
-                for vehicle in traci.edge.getLastStepVehicleIDs(lane):
-                    self.onLaneVehicles.append(vehicle)
-        self.temp_time = traci.simulation.getTime()
-        if not self.temp_vehicle:
-            # self.lead_time=traci.simulation.getTime()
-            return
-        
-        for vehicle in self.temp_vehicle:
-            if vehicle[5]=="1":
-                start="junction1"
-            else:
-                start="junction4"
-            if vehicle[11]=="1":
-                end="junction2"
-            else:
-                end="junction3"
-            self.totalcost+=shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
 
     def baselineCoordinate(self,shortestPaths,junctionids):
         # print(self.ID,self.basecost-self.totalcost)
@@ -179,7 +153,25 @@ class junction:
                 self.totalcost+=traci.lane.getLength(traci.vehicle.getLaneID(vehicle))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
                 
             return
-        
+        if traci.vehicle.getSpeed(self.lead_vehicle)==0:
+            self.lead_time=traci.simulation.getTime()
+            self.lead_vehicle=self.temp_vehicle[-1]
+            for vehicle in self.temp_vehicle:
+                self.basecost+=traci.lane.getLength(traci.vehicle.getLaneID(vehicle))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+                if vehicle in inPlatoonUntil:
+                    if inPlatoonUntil[vehicle]!=self.ID:
+                        end=inPlatoonUntil[vehicle]
+                        vehicle_item_type = traci.vehicle.getTypeID(vehicle)
+                        if (vehicle_item_type == 'connected_pFollower' or vehicle_item_type == 'connected_pCatchup' or vehicle_item_type == 'connected_pCatchupFollower'):
+                            self.totalcost+=traci.lane.getLength(traci.vehicle.getLaneID(vehicle))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)*0.9
+                        else:
+                            self.totalcost+=traci.lane.getLength(traci.vehicle.getLaneID(vehicle))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+                        continue
+                    else:
+                        inPlatoonUntil.pop(vehicle)
+                self.totalcost+=traci.lane.getLength(traci.vehicle.getLaneID(vehicle))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)
+                
+            return
         lead_vehicle_speed = traci.vehicle.getSpeed(self.lead_vehicle)
         lead_vehicle_speed_arrive_time = self.lead_time + d1 / lead_vehicle_speed
         
@@ -231,7 +223,7 @@ class junction:
                 
                 end="junction"+num
             
-            print(self.ID,vehicle,end,self.lead_vehicle,leadend)
+            # print(self.ID,vehicle,end,self.lead_vehicle,leadend)
 
             # print(vehicle,"originally spend",(traci.lane.getLength(traci.vehicle.getLaneID(vehicle)))/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000)+shortestPaths[(start,end)][0]/24*(w_1+baseline_vehicle_fuel_rate*w_2/1000))
             #cost already spent before detector
@@ -432,11 +424,9 @@ class network:
         return total_cost,total_fuel,total_time
     
 
-
-
 if __name__ == "__main__":
 
-	# find SUMO path and start the sumo program
+    # find SUMO path and start the sumo program
     try:
         sys.path.append(os.path.join(os.path.dirname(
         __file__), '..', '..', '..', '..', "tools"))
@@ -467,29 +457,40 @@ if __name__ == "__main__":
     #platoon_index = gr.generate_routefile()
 
     # generate the final SUMO file, include net file and vehicle file
-    traci.start([sumoBinary, '-c', os.path.join('data', 'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/siouxFalls.sumocfg')])
+    traci.start([sumoBinary, '-c', os.path.join('data', 'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/i210.sumocfg')])
 
     simpla.load("data/simpla.cfg.xml")
     mgr=simpla._mgr
-    newnet=network("C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/siouxFalls.net.xml","sumo",'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/siouxFalls.sumocfg')
+    newnet=network("C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/i210.net.xml","sumo",'C:/Users/Francmeister/Desktop/rl_with_model_2/Nguyen-Dupuis/i210.sumocfg')
     totalcost=0
     totalfuel=0
     totaltime=0
     print(newnet.dpres)
     print(newnet.shortestDist)
+    import generate_routefile_siouxFalls as grs
+    grs.generate_routefile()
     for i in range(len(newnet.junctions)):
         print(i,newnet.junctions[i].ID)
     inPlatoonUntil={}
-    for k in range(1800):
+    for k in range(900):
         # print(newnet.action())
         newnet.baselineStep()
-    traci.close()
+    
+    startcost=0
+    startbasecost=0
+    for junction in newnet.junctions:
+        print(junction.ID,junction.totalcost)
+        startcost+=junction.totalcost
+        startbasecost+=junction.basecost
+    for k in range(3600):
+        # print(newnet.action())
+        newnet.baselineStep()
     cost=0
     basecost=0
     for junction in newnet.junctions:
         print(junction.ID,junction.totalcost)
         cost+=junction.totalcost
         basecost+=junction.basecost
-    print(cost)
-    print(basecost)
-        
+    print(cost-startcost)
+    print(basecost-startbasecost)
+    traci.close()

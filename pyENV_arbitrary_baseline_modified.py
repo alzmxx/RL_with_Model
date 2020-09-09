@@ -10,7 +10,7 @@ import numpy as np
 import time
 import theta_calculation as tc
 import queue
-import generate_routefile as gr
+# import generate_routefile as gr
 import heapq
 w_1 = 25.8 / 3600  # value of time ($/hour)
 w_2 = 0.868			# oil price ($/L)
@@ -408,7 +408,7 @@ class network:
     
     def reset(self):
         traci.close()
-        gr.generate_routefile()
+        # gr.generate_routefile()
         traci.start([sumolib.checkBinary(self.ui), '-c', os.path.join(self.sumocfgPath)])
         simpla.load("data/simpla.cfg.xml")
         for junction in self.junctions:
@@ -451,7 +451,7 @@ if __name__ == "__main__":
 
     # choose whether to use GUI or not
     netconvertBinary = checkBinary('netconvert')
-    sumoBinary = checkBinary('sumo')
+    sumoBinary = checkBinary('sumo-gui')
 
 
     # begin the simulation

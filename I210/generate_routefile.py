@@ -4,16 +4,24 @@ import random
 def generate_routefile():
 
 	# define the parameters of the flow, 07:00 - 08:00; 08:00 - 09:00; 09:00 - 10:00. 
-	upper_branch_arrival_rate_list = [0.42, 0.06, 0.06]
+	upper_branch_arrival_rate_list = [0.05, 0.05,  0.117]
 	#lower_branch_arrival_rate_list = [0.127, 0.194, 0.167]
 
 	CAV_ratio = 0.2
 
 	num_veh = 100
-
-	routes=open("./Nguyen-Dupuis/N.rou.xml", "w")
+# ,file=routes)
+# 	for i in range(1,20):
+# 		if i not in [13,19,16]:
+# 			print("<route id="+"'link"+str(i)+"toend1'"+" edges="+"'link"+str(i)+" end1'"+"/>",file=routes)
+# 	for i in range(1,20):
+# 		if i not in [14,9,11,15]:
+# 			print("<route id="+"'link"+str(i)+"toend2'"+" edges="+"'link"+str(i)+" end2'"+"/>",file=routes)
+# 	print(
+	routes=open("N.rou.xml", "w")
 	print("""<?xml version="1.0" encoding="UTF-8"?>
 
+	
 <routes>
 
 	<route id="route0" edges="start1 end1" />
@@ -26,7 +34,7 @@ def generate_routefile():
     <vType id="connected" vClass="passenger" tau="1.3" maxSpeed="28.00" lcCooperative="0.0" color="1,1,0" lcStrategic="1.0" accel="3.0" decel="1.5" emergencyDecel="4.5" lcSpeedGain="0.3" sigma="0.0" lcKeepRight="0.3"/>
     <vType id="connected_pCatchupFollower" vClass="passenger" emergencyDecel="4.5" length="5" tau="0.1" maxSpeed="28.00" color="1,1,0" accel="10.3" decel="1.7" sigma="0.0" minGap="2.0"/>
     <vType id="connected_pCatchup" vClass="passenger" tau="0.1" emergencyDecel="4.5" maxSpeed="28.00" color="0,0.8,0.3" accel="10.3" decel="1.7" sigma="0.0" minGap="2.0"/>
-    <vType id="connected_pFollower" vClass="passenger" tau="0.1" maxSpeed="28.00" color="1,1,0" accel="10.3" decel="1.7" sigma="0.0"  minGap="2.0" emergencyDecel="4.5"/>
+    <vType id="connected_pFollower" vClass="passenger" tau="0.1" maxSpeed="28.00" color="1,1,0" accel="10.3" decel="1.7" sigma="0.0"  minGap="2.0" />
     <vType id="connected_pLeader" vClass="passenger" length="5" tau="1.3" maxSpeed="28.00" lcCooperative="0.0" color="1,1,0" lcStrategic="1.0" accel="2.0" decel="1.5" emergencyDecel="4.5" lcSpeedGain="0.3" sigma="0.0" lcKeepRight="0.3"/>
     
 
@@ -82,22 +90,22 @@ def generate_routefile():
 	# 		toLoc="end"+str(j)
 	# 		collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,700,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
 	fromLoc="start1"
 	toLoc="end1"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,700,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
 	fromLoc="start2"
 	toLoc="end1"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,700,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
 	fromLoc="start1"
 	toLoc="end2"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
 
-	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,700,CAV_ratio)
+	depart_time_list=generateDepartTime(upper_branch_arrival_rate_list,100,CAV_ratio)
 	fromLoc="start2"
 	toLoc="end2"
 	collectFiles(depart_time_list,routes,fromLoc,toLoc,allTrips)
@@ -110,7 +118,8 @@ def generate_routefile():
 	print("</routes>", file=routes)
 	routes.close()
 
-generate_routefile()
+
+
 	# write the file of the detecors
 	# with open("data/detector.xml", "w") as detector:
 
@@ -122,5 +131,6 @@ generate_routefile()
 
 	# 	''', file=detector)
 
-	# 	print("</additional>", file=detector)	
+	# 	print("</additional>", file=detector)
+	
 	
